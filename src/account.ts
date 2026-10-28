@@ -110,7 +110,7 @@ let itemSyncs: (() => void)[] = []
 const stickerUrl = (id: string) => new URL(`/s/${id}`, location.origin).href
 
 async function download(s: StickerView, kind: 'png' | 'svg') {
-  const svg = await stickerSvg(stickerUrl(s.id), { title: t('s.title'), sub: t('s.sub'), domain: location.host }, ['message'])
+  const svg = await stickerSvg(stickerUrl(s.id), { title: t('s.title'), sub: t('s.sub'), domain: location.host }, ['message'], 'H')
   const blob = kind === 'svg' ? new Blob([svg], { type: 'image/svg+xml' }) : await svgToPngBlob(svg)
   const a = document.createElement('a')
   a.href = URL.createObjectURL(blob)

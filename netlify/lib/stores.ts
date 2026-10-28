@@ -36,7 +36,18 @@ export interface Message {
   preset: Preset
   created: number
   reply?: Reply
+  text?: string // free text the owner typed as a Telegram reply
+  repliedAt?: number
 }
+
+// Lets the webhook find our message when the owner replies to the bot's Telegram message.
+// Stored in the 'messages' store under "tg|<chat>|<telegram message id>".
+export interface TelegramRef {
+  id: string
+  created: number
+}
+
+export const telegramRefKey = (chatId: number, messageId: number) => `tg|${chatId}|${messageId}`
 
 export const MESSAGE_TTL_MS = 24 * 60 * 60 * 1000
 export const MAX_STICKERS = 5

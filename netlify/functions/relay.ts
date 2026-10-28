@@ -1,8 +1,8 @@
 import type { Config, Context } from '@netlify/functions'
-import { botText, ownerMessage } from '../lib/bot-text'
+import { keyboard, ownerMessage } from '../lib/bot-text'
 import { json, sameOrigin } from '../lib/http'
 import { allow } from '../lib/ratelimit'
-import { MESSAGE_TTL_MS, store, type Message, type Owner, type Preset, type Sticker } from '../lib/stores'
+import { MESSAGE_TTL_MS, store, telegramRefKey, type Message, type Owner, type Preset, type Sticker, type TelegramRef } from '../lib/stores'
 import { botApi } from '../lib/telegram'
 import { cleanText, MESSAGE_ID_RE, randomId, STICKER_ID_RE } from '../lib/validate'
 
@@ -19,7 +19,7 @@ export default async (req: Request, context: Context) => {
     if (!MESSAGE_ID_RE.test(mid)) return json({ error: 'not found' }, 404)
     const m = (await store(context, 'messages').get(mid, { type: 'json' })) as Message | null
     if (!m || Date.now() - m.created > MESSAGE_TTL_MS) return json({ error: 'not found' }, 404)
-    return json({ reply: m.reply ?? null })
+    return json({ reply: m.reply ?? null, text: m.text ?? null, repliedAt: m.repliedAt ?? null })
   }
 
   if (!id || !STICKER_ID_RE.test(id)) return json({ error: 'not found' }, 404)
@@ -44,31 +44,21 @@ export default async (req: Request, context: Context) => {
   }
 
   const owner = (await store(context, 'owners').get(String(sticker.owner), { type: 'json' })) as Owner | null
-  const t = botText(owner?.lang)
   // Stored before sending, so a reply tapped right away always finds its message.
   const messageId = randomId(16)
   const messages = store(context, 'messages')
   await messages.setJSON(messageId, { sticker: id, preset, created: Date.now() } satisfies Message)
-  const sent = await botApi('sendMessage', {
+  const sent = (await botApi('sendMessage', {
     chat_id: sticker.owner,
     text: ownerMessage(owner?.lang, sticker.plate, preset, text),
-    reply_markup: {
-      inline_keyboard: [
-        [
-          { text: t.reply.coming, callback_data: `r|${messageId}|coming` },
-          { text: t.reply.soon, callback_data: `r|${messageId}|soon` },
-        ],
-        [{ text: t.reply.cant, callback_data: `r|${messageId}|cant` }],
-      ],
-    },
-  }).then(
-    () => true,
-    (e) => (console.error(e), false),
-  )
+    reply_markup: keyboard(owner?.lang, messageId, id, true),
+  }).catch((e) => (console.error(e), null))) as { message_id: number } | null
   if (!sent) {
     await messages.delete(messageId)
     return json({ error: 'undeliverable' }, 502)
   }
+  // Remembered so a Telegram reply to this message can be routed back to the scanner.
+  await messages.setJSON(telegramRefKey(sticker.owner, sent.message_id), { id: messageId, created: Date.now() } satisfies TelegramRef)
   return json({ id: messageId }, 201)
 }
 
