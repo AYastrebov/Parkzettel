@@ -108,10 +108,10 @@ npm run preview   # serve dist/
 
 ## Deploy
 
-For GitHub Pages, push to `main` and set *Settings → Pages → Source* to **GitHub Actions**.
-The workflow in [`.github/workflows/deploy.yml`](.github/workflows/deploy.yml) builds and publishes the site.
+The live site is **https://parkzettel.netlify.app/**. Netlify deploys every push to `main` and builds a preview for each pull request.
 
-For Netlify, click *Deploy to Netlify* above or import the repo. [`netlify.toml`](netlify.toml) holds the build settings.
+To run your own copy, click *Deploy to Netlify* above or import the repo. [`netlify.toml`](netlify.toml) holds the build settings.
+Any other static host works too: run `npm run build` and serve `dist/`.
 
 > [!WARNING]
 > Choose your final domain before printing stickers, because the full URL is inside every QR code.
