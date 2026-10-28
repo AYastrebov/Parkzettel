@@ -62,8 +62,7 @@ src/i18n.ts        DE / EN / IT dictionaries, language detection
 src/icons.ts       Lucide-derived icon paths (ISC)
 src/plate.ts       EU plate stars and country codes
 docs/              README screenshots
-.github/workflows/deploy.yml   GitHub Pages deploy
-netlify.toml       Netlify build + headers
+netlify.toml       Netlify build + headers (production: parkzettel.netlify.app)
 ```
 
 ## Gotchas
@@ -72,7 +71,7 @@ netlify.toml       Netlify build + headers
   page fails to decrypt and shows the error view.
 - The QR encodes the full URL of the page the generator runs on, so stickers made on `localhost` only work
   on that machine.
-- `vite.config.ts` uses `base: './'` so the build works under a GitHub Pages sub-path. Keep asset paths relative.
+- `vite.config.ts` uses `base: './'` so the build works from any sub-path. Keep asset paths relative.
 - Token length drives QR density. Don't add payload fields or long defaults without a good reason.
 
 ## Commits and PRs
@@ -80,3 +79,9 @@ netlify.toml       Netlify build + headers
 - Imperative, concise subject lines (`Add Spanish translation`, `Fix WhatsApp link for numbers with spaces`).
 - When the UI changes, update the screenshots in `docs/` and mention it in the PR.
 - If a change touches `src/codec.ts`, state in the PR how existing tokens stay decodable.
+
+## Deploys
+
+Netlify deploys `main` to https://parkzettel.netlify.app/ and builds a preview for every PR. The account is on
+Netlify's credit-based free plan: each production deploy costs 15 of 300 monthly credits, and the site is paused
+when they run out. Batch changes into one PR rather than pushing many small commits to `main`.

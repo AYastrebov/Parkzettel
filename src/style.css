@@ -521,11 +521,16 @@ textarea:focus {
   overflow-wrap: anywhere;
 }
 
+.check-plate {
+  margin: 24px 0 0;
+  font-weight: 600;
+}
+
 .contact-actions {
   display: flex;
   flex-direction: column;
   gap: 12px;
-  margin: 28px 0 16px;
+  margin: 16px 0 16px;
 }
 
 .big {

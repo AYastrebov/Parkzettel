@@ -77,8 +77,10 @@ The site is a set of static files, and all the work happens in the browser. The 
 
 > [!IMPORTANT]
 > The person who scans the code has to be able to read it, so the decryption key is part of the QR.
-> Encryption keeps your data out of logs, link previews and crawlers, and it makes tampering detectable.
-> Anyone who scans the sticker will still see the contact options you chose.
+> Encryption keeps your data from being readable at a glance in the URL, and it detects damaged links.
+> It does not stop anyone who has the link, or a photo of the sticker, from seeing the contact options you chose.
+> It also cannot prove who made a sticker: anyone can create one, so the contact page asks scanners to check that the plate matches the car.
+> To keep your phone number private, offer Telegram only or use a second number.
 
 > [!TIP]
 > If your number changes, create a new sticker. Without a database, there is nothing to update.
@@ -108,10 +110,10 @@ npm run preview   # serve dist/
 
 ## Deploy
 
-For GitHub Pages, push to `main` and set *Settings → Pages → Source* to **GitHub Actions**.
-The workflow in [`.github/workflows/deploy.yml`](.github/workflows/deploy.yml) builds and publishes the site.
+The live site is **https://parkzettel.netlify.app/**. Netlify deploys every push to `main` and builds a preview for each pull request.
 
-For Netlify, click *Deploy to Netlify* above or import the repo. [`netlify.toml`](netlify.toml) holds the build settings.
+To run your own copy, click *Deploy to Netlify* above or import the repo. [`netlify.toml`](netlify.toml) holds the build settings.
+Any other static host works too: run `npm run build` and serve `dist/`.
 
 > [!WARNING]
 > Choose your final domain before printing stickers, because the full URL is inside every QR code.

@@ -1,7 +1,8 @@
 // Contact data travels inside the URL fragment (after '#'), which browsers never send to a server.
 // Format: "1" + base64url(key[16] | iv[12] | AES-GCM ciphertext). The key ships alongside the
-// ciphertext because the scanner must be able to read the data; the encryption keeps it unreadable
-// for anything that sees the link without decoding it (logs, previews, crawlers) and tamper-evident.
+// ciphertext because the scanner must be able to read the data. The encryption only keeps the data from
+// being readable at a glance in the URL; anyone holding the link can decode it. GCM's tag catches damaged
+// links, not forgery: anyone can mint a valid token with a key of their own.
 
 export interface Contact {
   plate: string
