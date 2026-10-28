@@ -13,7 +13,7 @@
   --danger: #b3261e;
   --wa: #1faa53;
   --tg: #229ed9;
-  --sign: 'Barlow Condensed', 'Arial Narrow', sans-serif;
+  --sign: 'Barlow Condensed', 'Roboto Condensed', 'Arial Narrow', sans-serif;
   --text: 'Barlow', system-ui, sans-serif;
   color-scheme: light;
 }
@@ -113,6 +113,14 @@ h2 {
 }
 
 /* Chevron drawn by the label so the select can keep appearance: none. */
+/* Native option popups keep their own light background in some browsers (Chrome on Linux, Windows) while
+   inheriting the select's text color, which made options unreadable in dark mode and on the blue country
+   selects. Give options their own fixed colors. */
+select option {
+  color: #1e1e1e;
+  background: #fff;
+}
+
 .langs::after {
   content: '';
   position: absolute;
