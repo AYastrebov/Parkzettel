@@ -847,3 +847,86 @@ textarea:focus {
 .relay-form .error {
   margin: 0;
 }
+
+/* ---------- private vs relay ---------- */
+
+.compare {
+  margin-top: 48px;
+  padding-top: 32px;
+  border-top: 3px solid var(--ink);
+}
+
+.compare h2 {
+  font-size: 30px;
+  margin-bottom: 20px;
+}
+
+.compare-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 40px;
+}
+
+.compare h3 {
+  font: 700 24px/1.1 var(--sign);
+  margin: 0 0 10px;
+}
+
+.compare ul {
+  margin: 0 0 14px;
+  padding-left: 20px;
+  color: var(--muted);
+  display: grid;
+  gap: 6px;
+}
+
+@media (max-width: 820px) {
+  .compare-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ---------- print sheet ---------- */
+
+#print-sheet {
+  display: none;
+}
+
+@media print {
+  @page {
+    size: A4;
+    margin: 15mm;
+  }
+  body {
+    background: #fff;
+  }
+  #app {
+    display: none;
+  }
+  #print-sheet {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12mm;
+    align-content: flex-start;
+  }
+  /* 80 mm wide sticker plus a 3 mm cutting allowance, marked with a dashed line. */
+  .print-copy {
+    width: 86mm;
+    padding: 3mm;
+    border: 0.3mm dashed #888;
+    border-radius: 9mm;
+    box-sizing: border-box;
+  }
+  .print-copy svg {
+    display: block;
+    width: 100%;
+    height: auto;
+    filter: none;
+  }
+  .print-hint {
+    width: 100%;
+    margin: 0;
+    font: 10pt/1.4 var(--text);
+    color: #444;
+  }
+}

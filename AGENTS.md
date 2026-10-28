@@ -81,6 +81,7 @@ src/codec.ts       payload packing + AES-GCM seal/open (token format lives here)
 src/sticker.ts     sticker SVG and PNG export
 src/i18n.ts        DE / EN / IT dictionaries, language detection
 src/icons.ts       Lucide-derived icon paths (ISC)
+src/share.ts       print sheet (two 80 mm copies, print CSS in style.css) and Web Share of the PNG
 src/plate.ts       EU plate stars and country codes
 docs/              README screenshots
 netlify.toml       Netlify build + headers (production: parkzettel.netlify.app)

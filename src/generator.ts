@@ -2,6 +2,7 @@ import { PHONE_RE, seal, TELEGRAM_RE, type Contact } from './codec'
 import { lang, onLangChange, t, translate, type Key } from './i18n'
 import type { IconName } from './icons'
 import { COUNTRIES, EU_STARS_SVG } from './plate'
+import { canShareFiles, printSticker, shareSticker } from './share'
 import { stickerSvg, svgToPngBlob } from './sticker'
 
 // The plate sits outside the <form> in the hero; form="gen" still makes it a form control.
@@ -26,7 +27,9 @@ const TEMPLATE = `
 <aside class="preview">
   <div class="sticker draft" aria-live="polite"></div>
   <div class="actions">
-    <button type="button" class="btn primary" data-act="png" disabled data-i18n="p.png"></button>
+    <button type="button" class="btn primary" data-act="print" disabled data-i18n="p.print"></button>
+    <button type="button" class="btn" data-act="share" disabled hidden data-i18n="p.share"></button>
+    <button type="button" class="btn" data-act="png" disabled data-i18n="p.png"></button>
     <button type="button" class="btn" data-act="svg" disabled data-i18n="p.svg"></button>
     <button type="button" class="btn" data-act="copy" disabled data-i18n="p.copy"></button>
     <a class="btn" data-act="test" target="_blank" rel="noopener" aria-disabled="true" data-i18n="p.test"></a>
@@ -66,6 +69,21 @@ const TEMPLATE = `
   <div>
     <h2 data-i18n="priv.title"></h2>
     <p data-i18n="priv.body"></p>
+  </div>
+</section>
+<section class="compare">
+  <h2 data-i18n="cmp.title"></h2>
+  <div class="compare-grid">
+    <div>
+      <h3 data-i18n="cmp.private"></h3>
+      <ul><li data-i18n="cmp.p1"></li><li data-i18n="cmp.p2"></li><li data-i18n="cmp.p3"></li></ul>
+      <p class="small" data-i18n="cmp.pNote"></p>
+    </div>
+    <div>
+      <h3 data-i18n="cmp.relay"></h3>
+      <ul><li data-i18n="cmp.r1"></li><li data-i18n="cmp.r2"></li><li data-i18n="cmp.r3"></li></ul>
+      <a class="btn" href="/account" data-i18n="cmp.relayLink"></a>
+    </div>
   </div>
 </section>`
 
@@ -136,7 +154,7 @@ export function renderGenerator(root: HTMLElement) {
   let seq = 0
 
   const setReady = (ready: boolean) => {
-    for (const a of ['png', 'svg', 'copy']) btn(a).disabled = !ready
+    for (const a of ['print', 'share', 'png', 'svg', 'copy']) btn(a).disabled = !ready
     testLink.setAttribute('aria-disabled', String(!ready))
     if (ready && current) testLink.href = current.url
     else testLink.removeAttribute('href')
@@ -199,6 +217,13 @@ export function renderGenerator(root: HTMLElement) {
   })
   btn('png').addEventListener('click', async () => {
     if (current) download(await svgToPngBlob(current.svg), fileBase() + '.png')
+  })
+  btn('print').addEventListener('click', () => {
+    if (current) printSticker(current.svg)
+  })
+  btn('share').hidden = !canShareFiles()
+  btn('share').addEventListener('click', () => {
+    if (current) shareSticker(current.svg, fileBase() + '.png')
   })
   btn('copy').addEventListener('click', async () => {
     if (!current) return
