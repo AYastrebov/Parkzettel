@@ -1235,6 +1235,23 @@ textarea:focus {
   justify-content: center;
 }
 
+.l-gh-inline {
+  color: inherit;
+}
+
+.l-gh {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 20px;
+  color: var(--muted);
+  font-weight: 600;
+}
+
+.l-gh:hover {
+  color: var(--ink);
+}
+
 @media (max-width: 820px) {
   .l-hero,
   .l-split {

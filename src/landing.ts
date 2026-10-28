@@ -5,6 +5,8 @@ import { EU_STARS_SVG } from './plate'
 // Marketing page at "/". The generator lives at /create; printed private stickers (/#token) and relay
 // stickers (/s/<id>) are routed in main.ts before this page is considered.
 
+const GITHUB = 'https://github.com/AYastrebov/Parkzettel'
+
 const TEMPLATE = `
 <section class="l-hero">
   <div class="l-hero-text">
@@ -14,7 +16,7 @@ const TEMPLATE = `
       <a class="btn primary l-cta" href="/create" data-i18n="l.cta"></a>
       <button type="button" class="btn l-cta" data-act="share" data-i18n="l.share"></button>
     </div>
-    <p class="small" data-i18n="l.free"></p>
+    <p class="small"><span data-i18n="l.free"></span> <a class="l-gh-inline" href="${GITHUB}" rel="noopener" data-i18n="l.github"></a></p>
   </div>
   <div class="l-hero-visual" aria-hidden="true">
     <div class="l-phone">
@@ -88,6 +90,7 @@ const TEMPLATE = `
     <a class="btn primary l-cta" href="/create" data-i18n="l.cta"></a>
     <button type="button" class="btn l-cta" data-act="share" data-i18n="l.share"></button>
   </div>
+  <a class="l-gh" href="${GITHUB}" rel="noopener">${icon('github', 20)}<span data-i18n="l.github"></span></a>
 </section>`
 
 export function renderLanding(root: HTMLElement) {
