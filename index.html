@@ -2,8 +2,9 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <!-- Scanner and generator pages: no third-party code at all. Header-only directives live in netlify.toml. -->
-    <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self'; style-src 'self' 'unsafe-inline'; font-src 'self' data:; img-src 'self' data: blob:; connect-src 'self'" />
+    <!-- Scanner and generator pages: no third-party code. connect-src also allows Netlify's Real User Monitoring
+         collector, whose script Netlify injects at /.netlify/scripts/rum. Header-only directives live in netlify.toml. -->
+    <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self'; style-src 'self' 'unsafe-inline'; font-src 'self' data:; img-src 'self' data: blob:; connect-src 'self' https://ingesteer.services-prod.nsvcs.net https://netlify-rum.netlify.app" />
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
     <meta name="referrer" content="no-referrer" />
     <meta name="theme-color" content="#f7ba0b" />

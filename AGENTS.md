@@ -32,7 +32,9 @@ the "Test the page" link, and confirm the buttons' `href`s. Do this in at least 
    with no backend call and send nothing off the device. Server code (`netlify/functions/`) exists only for the
    opt-in relay stickers and Telegram login. It stores the minimum: numeric Telegram IDs, never names, usernames,
    phone numbers or raw IPs. Use `store()` from `netlify/lib/stores.ts`, which keeps non-production deploys out
-   of production data. No analytics or error reporting services.
+   of production data. No analytics or error reporting services of our own. Netlify injects its Real User
+   Monitoring script (performance timings, no cookies, no URL) and the two HTML `<meta>` CSPs allow its collector
+   in `connect-src`; keep it that way unless the owner turns RUM off in Netlify.
 3. **No external requests at runtime,** with one exception: the account page (`account.html`) loads Telegram's
    login widget. Scanner and generator pages load nothing from third parties: no CDNs, Google Fonts or remote
    images. Bundle fonts through `@fontsource/*`. Each HTML page sets its own CSP in a `<meta>` tag; keep the
@@ -40,9 +42,12 @@ the "Test the page" link, and confirm the buttons' `href`s. Do this in at least 
 4. **Treat decoded data as untrusted.** Anyone can craft a token. Insert user values with `textContent`
    or `esc()` in `src/sticker.ts`, never by building `innerHTML` from them. Build links only from validated
    values: E.164 phone numbers and Telegram usernames matching `^[a-zA-Z][a-zA-Z0-9_]{4,31}$`.
-5. **Keep all three languages in sync.** Every user-visible string goes through `t()` / `data-i18n` in
-   `src/i18n.ts`, with DE, EN and IT entries. The `Dict` type makes a missing key a build error. Write German
-   with formal *Sie*, Italian with informal *tu* (matching the existing strings), and avoid em dashes in copy.
+5. **Keep the languages in sync.** Every user-visible string goes through `t()` / `data-i18n` in `src/i18n.ts`.
+   Two tiers: full languages (DE, EN, IT: every key, `Dict`) and scanner languages (FR, ES, NL, PL, TR, UK, RU:
+   only `ScannerKey`, i.e. `c.*`, `r.*`, `bad.*`, `foot`, `nav.account`; everything else falls back to EN). Both
+   types make a missing key a build error. A new scanner-facing key therefore needs ten translations. Write
+   German with formal *Sie*, Italian with informal *tu* (matching the existing strings), formal address in the
+   scanner languages, and avoid em dashes in copy. Bot texts (`netlify/lib/bot-text.ts`) stay DE/EN/IT.
 6. **Sticker SVG must stay self-contained.** `stickerSvg()` output is rasterized via `<img>`, which cannot load
    external resources. Use inline shapes only; the font is embedded as a `?inline` data URL.
 
@@ -79,7 +84,7 @@ src/generator.ts   create mode: form, validation, preview, downloads
 src/contact.ts     scan mode
 src/codec.ts       payload packing + AES-GCM seal/open (token format lives here)
 src/sticker.ts     sticker SVG and PNG export
-src/i18n.ts        DE / EN / IT dictionaries, language detection
+src/i18n.ts        full (DE/EN/IT) and scanner-tier dictionaries, language detection, picker names
 src/icons.ts       Lucide-derived icon paths (ISC)
 src/share.ts       print sheet (two 80 mm copies, print CSS in style.css) and Web Share of the PNG
 src/plate.ts       EU plate stars and country codes
@@ -102,7 +107,9 @@ netlify.toml       Netlify build + headers (production: parkzettel.netlify.app)
 ## Commits and PRs
 
 - Imperative, concise subject lines (`Add Spanish translation`, `Fix WhatsApp link for numbers with spaces`).
-- When the UI changes, update the screenshots in `docs/` and mention it in the PR.
+- When the UI changes, regenerate the screenshots: start `netlify dev` as described under Commands (with
+  `TELEGRAM_DRY_RUN=1`), run `npx playwright install chromium` once, then `npm run screenshots`. Phone shots get
+  a device frame from `scripts/frame.mjs`. Mention it in the PR.
 - If a change touches `src/codec.ts`, state in the PR how existing tokens stay decodable.
 
 ## Deploys

@@ -320,18 +320,303 @@ const it: Dict = {
 }
 
 export const LANGS = { de, en, it } as const
-export type Lang = keyof typeof LANGS
+export type FullLang = keyof typeof LANGS
+
+// Scanner tier: everything a person who scans a sticker can see (contact page, relay page, error page,
+// footer). Any other string falls back to English. The owner side (generator, account page, sticker
+// text, bot messages) is DE/EN/IT only.
+export type ScannerKey = Extract<Key, `c.${string}` | `r.${string}` | `bad.${string}` | 'foot' | 'nav.account'>
+type ScannerDict = Record<ScannerKey, string>
+
+const fr: ScannerDict = {
+  'c.eyebrow': 'Contacter le conducteur de',
+  'c.call': 'Appeler',
+  'c.wa': 'WhatsApp',
+  'c.tg': 'Telegram',
+  'c.waMsg': 'Bonjour ! Je vous contacte au sujet de votre voiture {plate}.',
+  'c.check': 'Vérifiez que la plaque correspond à la voiture avant de prendre contact.',
+  'c.hint': 'Restez courtois. Le conducteur verra votre numéro lorsque vous le contacterez.',
+  'c.create': 'Créer votre propre autocollant',
+  'bad.title': 'Ce code est illisible',
+  'bad.body': 'Le lien semble incomplet ou endommagé. Essayez de scanner à nouveau le code QR.',
+  'nav.account': 'Autocollants relais et connexion',
+  'r.lead': "Envoyez un message au conducteur. Il le reçoit sur Telegram, et aucun de vous ne voit le numéro de l'autre.",
+  'r.blocking': 'Vous me bloquez',
+  'r.lights': 'Vos phares sont allumés',
+  'r.other': 'Autre chose',
+  'r.textPh': 'Ajouter un court message (facultatif)',
+  'r.send': 'Envoyer au conducteur',
+  'r.sent': 'Envoyé. Le conducteur a été prévenu.',
+  'r.waiting': 'En attente de réponse…',
+  'r.reply.coming': 'Le conducteur arrive.',
+  'r.reply.soon': 'Le conducteur arrive dans environ 10 minutes.',
+  'r.reply.cant': 'Le conducteur ne peut pas venir pour le moment.',
+  'r.off': 'Cet autocollant est désactivé.',
+  'r.missing': "Cet autocollant n'existe pas (ou plus).",
+  'r.limit': 'Trop de messages. Veuillez patienter quelques minutes.',
+  'r.fail': "Le message n'a pas pu être transmis. Veuillez réessayer plus tard.",
+  'r.sending': 'Envoi…',
+  'r.agoNow': "Envoyé à l'instant.",
+  'r.ago': 'Envoyé il y a {min} min.',
+  'r.keepOpen': 'Gardez cette page ouverte pour voir la réponse.',
+  'r.reply.text': 'Le conducteur écrit :',
+  'r.more': 'Envoyer un autre message',
+  'r.needText': 'Veuillez écrire un court message.',
+  'foot': "Les autocollants privés ne nécessitent aucun compte et n'enregistrent rien.",
+}
+
+const es: ScannerDict = {
+  'c.eyebrow': 'Contactar con el conductor de',
+  'c.call': 'Llamar',
+  'c.wa': 'WhatsApp',
+  'c.tg': 'Telegram',
+  'c.waMsg': '¡Hola! Le escribo por su coche {plate}.',
+  'c.check': 'Compruebe que la matrícula coincide con el coche antes de ponerse en contacto.',
+  'c.hint': 'Sea amable. El conductor verá su número cuando se ponga en contacto.',
+  'c.create': 'Crear su propia pegatina',
+  'bad.title': 'Este código no se puede leer',
+  'bad.body': 'El enlace parece incompleto o dañado. Intente escanear el código QR de nuevo.',
+  'nav.account': 'Pegatinas relay e inicio de sesión',
+  'r.lead': 'Envíe un mensaje al conductor. Lo recibe en Telegram, y ninguno de los dos ve el número de teléfono del otro.',
+  'r.blocking': 'Me está bloqueando la salida',
+  'r.lights': 'Tiene las luces encendidas',
+  'r.other': 'Otra cosa',
+  'r.textPh': 'Añadir un mensaje corto (opcional)',
+  'r.send': 'Enviar al conductor',
+  'r.sent': 'Enviado. El conductor ha sido avisado.',
+  'r.waiting': 'Esperando respuesta…',
+  'r.reply.coming': 'El conductor está en camino.',
+  'r.reply.soon': 'El conductor llegará en unos 10 minutos.',
+  'r.reply.cant': 'El conductor no puede venir ahora mismo.',
+  'r.off': 'Esta pegatina está desactivada.',
+  'r.missing': 'Esta pegatina ya no existe.',
+  'r.limit': 'Demasiados mensajes. Espere unos minutos.',
+  'r.fail': 'No se pudo entregar el mensaje. Inténtelo de nuevo más tarde.',
+  'r.sending': 'Enviando…',
+  'r.agoNow': 'Enviado ahora mismo.',
+  'r.ago': 'Enviado hace {min} min.',
+  'r.keepOpen': 'Mantenga esta página abierta para ver la respuesta.',
+  'r.reply.text': 'El conductor escribe:',
+  'r.more': 'Enviar otro mensaje',
+  'r.needText': 'Escriba un mensaje corto.',
+  'foot': 'Las pegatinas privadas no necesitan cuenta y no guardan nada.',
+}
+
+const nl: ScannerDict = {
+  'c.eyebrow': 'Neem contact op met de bestuurder van',
+  'c.call': 'Bellen',
+  'c.wa': 'WhatsApp',
+  'c.tg': 'Telegram',
+  'c.waMsg': 'Hallo! Ik neem contact met u op over uw auto {plate}.',
+  'c.check': 'Controleer of het kenteken bij de auto hoort voordat u contact opneemt.',
+  'c.hint': 'Wees beleefd. De bestuurder ziet uw nummer zodra u contact opneemt.',
+  'c.create': 'Maak uw eigen sticker',
+  'bad.title': 'Deze code kan niet worden gelezen',
+  'bad.body': 'De link lijkt onvolledig of beschadigd. Scan de QR-code opnieuw.',
+  'nav.account': 'Relay-stickers en inloggen',
+  'r.lead': 'Stuur de bestuurder een bericht. Die ontvangt het op Telegram, en geen van beiden ziet het telefoonnummer van de ander.',
+  'r.blocking': 'U blokkeert mijn auto',
+  'r.lights': 'Uw lichten staan aan',
+  'r.other': 'Iets anders',
+  'r.textPh': 'Voeg een kort bericht toe (optioneel)',
+  'r.send': 'Naar de bestuurder sturen',
+  'r.sent': 'Verstuurd. De bestuurder is op de hoogte gebracht.',
+  'r.waiting': 'Wachten op antwoord…',
+  'r.reply.coming': 'De bestuurder is onderweg.',
+  'r.reply.soon': 'De bestuurder is er over ongeveer 10 minuten.',
+  'r.reply.cant': 'De bestuurder kan nu niet komen.',
+  'r.off': 'Deze sticker is uitgeschakeld.',
+  'r.missing': 'Deze sticker bestaat niet (meer).',
+  'r.limit': 'Te veel berichten. Wacht een paar minuten.',
+  'r.fail': 'Het bericht kon niet worden bezorgd. Probeer het later opnieuw.',
+  'r.sending': 'Versturen…',
+  'r.agoNow': 'Zojuist verstuurd.',
+  'r.ago': '{min} min geleden verstuurd.',
+  'r.keepOpen': 'Houd deze pagina open om het antwoord te zien.',
+  'r.reply.text': 'De bestuurder schrijft:',
+  'r.more': 'Nog een bericht sturen',
+  'r.needText': 'Schrijf een kort bericht.',
+  'foot': 'Privéstickers hebben geen account nodig en slaan niets op.',
+}
+
+const pl: ScannerDict = {
+  'c.eyebrow': 'Skontaktuj się z kierowcą auta',
+  'c.call': 'Zadzwoń',
+  'c.wa': 'WhatsApp',
+  'c.tg': 'Telegram',
+  'c.waMsg': 'Dzień dobry! Piszę w sprawie Pana/Pani samochodu {plate}.',
+  'c.check': 'Przed kontaktem sprawdź, czy tablica rejestracyjna zgadza się z samochodem.',
+  'c.hint': 'Prosimy o uprzejmość. Kierowca zobaczy Twój numer, gdy się z nim skontaktujesz.',
+  'c.create': 'Stwórz własną naklejkę',
+  'bad.title': 'Nie można odczytać tego kodu',
+  'bad.body': 'Link wygląda na niekompletny lub uszkodzony. Spróbuj ponownie zeskanować kod QR.',
+  'nav.account': 'Naklejki relay i logowanie',
+  'r.lead': 'Wyślij wiadomość do kierowcy. Otrzyma ją na Telegramie, a żadne z was nie zobaczy numeru telefonu drugiej osoby.',
+  'r.blocking': 'Blokujesz mi wyjazd',
+  'r.lights': 'Masz włączone światła',
+  'r.other': 'Coś innego',
+  'r.textPh': 'Dodaj krótką wiadomość (opcjonalnie)',
+  'r.send': 'Wyślij do kierowcy',
+  'r.sent': 'Wysłano. Kierowca został powiadomiony.',
+  'r.waiting': 'Oczekiwanie na odpowiedź…',
+  'r.reply.coming': 'Kierowca już idzie.',
+  'r.reply.soon': 'Kierowca będzie za około 10 minut.',
+  'r.reply.cant': 'Kierowca nie może teraz przyjść.',
+  'r.off': 'Ta naklejka jest wyłączona.',
+  'r.missing': 'Ta naklejka (już) nie istnieje.',
+  'r.limit': 'Zbyt wiele wiadomości. Poczekaj kilka minut.',
+  'r.fail': 'Nie udało się dostarczyć wiadomości. Spróbuj ponownie później.',
+  'r.sending': 'Wysyłanie…',
+  'r.agoNow': 'Wysłano przed chwilą.',
+  'r.ago': 'Wysłano {min} min temu.',
+  'r.keepOpen': 'Nie zamykaj tej strony, aby zobaczyć odpowiedź.',
+  'r.reply.text': 'Kierowca pisze:',
+  'r.more': 'Wyślij kolejną wiadomość',
+  'r.needText': 'Napisz krótką wiadomość.',
+  'foot': 'Prywatne naklejki nie wymagają konta i niczego nie zapisują.',
+}
+
+const tr: ScannerDict = {
+  'c.eyebrow': 'Aracın sürücüsüne ulaşın',
+  'c.call': 'Ara',
+  'c.wa': 'WhatsApp',
+  'c.tg': 'Telegram',
+  'c.waMsg': 'Merhaba! {plate} plakalı aracınız hakkında size ulaşıyorum.',
+  'c.check': 'İletişime geçmeden önce plakanın araçla eşleştiğini kontrol edin.',
+  'c.hint': 'Lütfen nazik olun. İletişime geçtiğinizde sürücü numaranızı görecektir.',
+  'c.create': 'Kendi etiketinizi oluşturun',
+  'bad.title': 'Bu kod okunamıyor',
+  'bad.body': 'Bağlantı eksik veya bozuk görünüyor. QR kodu yeniden taramayı deneyin.',
+  'nav.account': 'Relay etiketleri ve giriş',
+  'r.lead': 'Sürücüye mesaj gönderin. Mesaj Telegram üzerinden ulaşır ve hiçbiriniz diğerinin telefon numarasını görmez.',
+  'r.blocking': 'Aracımın önünü kapattınız',
+  'r.lights': 'Farlarınız açık kalmış',
+  'r.other': 'Başka bir şey',
+  'r.textPh': 'Kısa bir mesaj ekleyin (isteğe bağlı)',
+  'r.send': 'Sürücüye gönder',
+  'r.sent': 'Gönderildi. Sürücüye bildirildi.',
+  'r.waiting': 'Yanıt bekleniyor…',
+  'r.reply.coming': 'Sürücü yolda.',
+  'r.reply.soon': 'Sürücü yaklaşık 10 dakika içinde gelecek.',
+  'r.reply.cant': 'Sürücü şu anda gelemiyor.',
+  'r.off': 'Bu etiket kapalı.',
+  'r.missing': 'Bu etiket (artık) mevcut değil.',
+  'r.limit': 'Çok fazla mesaj. Lütfen birkaç dakika bekleyin.',
+  'r.fail': 'Mesaj iletilemedi. Lütfen daha sonra tekrar deneyin.',
+  'r.sending': 'Gönderiliyor…',
+  'r.agoNow': 'Az önce gönderildi.',
+  'r.ago': '{min} dk önce gönderildi.',
+  'r.keepOpen': 'Yanıtı görmek için bu sayfayı açık tutun.',
+  'r.reply.text': 'Sürücü yazdı:',
+  'r.more': 'Başka bir mesaj gönder',
+  'r.needText': 'Lütfen kısa bir mesaj yazın.',
+  'foot': 'Özel etiketler hesap gerektirmez ve hiçbir şey kaydetmez.',
+}
+
+const uk: ScannerDict = {
+  'c.eyebrow': "Зв'язатися з водієм авто",
+  'c.call': 'Подзвонити',
+  'c.wa': 'WhatsApp',
+  'c.tg': 'Telegram',
+  'c.waMsg': 'Вітаю! Пишу щодо вашого авто {plate}.',
+  'c.check': "Перш ніж зв'язуватися, перевірте, чи номерний знак збігається з автомобілем.",
+  'c.hint': "Будь ласка, будьте ввічливі. Водій побачить ваш номер, коли ви з ним зв'яжетеся.",
+  'c.create': 'Створити власну наліпку',
+  'bad.title': 'Цей код неможливо прочитати',
+  'bad.body': 'Посилання виглядає неповним або пошкодженим. Спробуйте відсканувати QR-код ще раз.',
+  'nav.account': 'Relay-наліпки та вхід',
+  'r.lead': 'Надішліть водієві повідомлення. Він отримає його в Telegram, і ніхто з вас не побачить номер телефону іншого.',
+  'r.blocking': 'Ви заблокували мій виїзд',
+  'r.lights': 'У вас увімкнені фари',
+  'r.other': 'Інше',
+  'r.textPh': "Додайте коротке повідомлення (необов'язково)",
+  'r.send': 'Надіслати водієві',
+  'r.sent': 'Надіслано. Водія повідомлено.',
+  'r.waiting': 'Очікуємо відповідь…',
+  'r.reply.coming': 'Водій уже йде.',
+  'r.reply.soon': 'Водій буде приблизно за 10 хвилин.',
+  'r.reply.cant': 'Водій зараз не може підійти.',
+  'r.off': 'Цю наліпку вимкнено.',
+  'r.missing': 'Цієї наліпки (більше) не існує.',
+  'r.limit': 'Забагато повідомлень. Зачекайте кілька хвилин.',
+  'r.fail': 'Не вдалося доставити повідомлення. Спробуйте пізніше.',
+  'r.sending': 'Надсилання…',
+  'r.agoNow': 'Щойно надіслано.',
+  'r.ago': 'Надіслано {min} хв тому.',
+  'r.keepOpen': 'Не закривайте цю сторінку, щоб побачити відповідь.',
+  'r.reply.text': 'Водій пише:',
+  'r.more': 'Надіслати ще одне повідомлення',
+  'r.needText': 'Напишіть коротке повідомлення.',
+  'foot': 'Приватні наліпки не потребують облікового запису й нічого не зберігають.',
+}
+
+const ru: ScannerDict = {
+  'c.eyebrow': 'Связаться с водителем авто',
+  'c.call': 'Позвонить',
+  'c.wa': 'WhatsApp',
+  'c.tg': 'Telegram',
+  'c.waMsg': 'Здравствуйте! Пишу по поводу вашего автомобиля {plate}.',
+  'c.check': 'Прежде чем связаться, проверьте, что номер совпадает с автомобилем.',
+  'c.hint': 'Пожалуйста, будьте вежливы. Водитель увидит ваш номер, когда вы с ним свяжетесь.',
+  'c.create': 'Создать свою наклейку',
+  'bad.title': 'Этот код не удаётся прочитать',
+  'bad.body': 'Ссылка выглядит неполной или повреждённой. Попробуйте отсканировать QR-код ещё раз.',
+  'nav.account': 'Relay-наклейки и вход',
+  'r.lead': 'Отправьте водителю сообщение. Он получит его в Telegram, и никто из вас не увидит номер телефона другого.',
+  'r.blocking': 'Вы перекрыли мне выезд',
+  'r.lights': 'У вас включены фары',
+  'r.other': 'Другое',
+  'r.textPh': 'Добавьте короткое сообщение (необязательно)',
+  'r.send': 'Отправить водителю',
+  'r.sent': 'Отправлено. Водитель уведомлён.',
+  'r.waiting': 'Ожидаем ответ…',
+  'r.reply.coming': 'Водитель уже идёт.',
+  'r.reply.soon': 'Водитель будет примерно через 10 минут.',
+  'r.reply.cant': 'Водитель сейчас не может подойти.',
+  'r.off': 'Эта наклейка отключена.',
+  'r.missing': 'Этой наклейки (больше) не существует.',
+  'r.limit': 'Слишком много сообщений. Подождите несколько минут.',
+  'r.fail': 'Не удалось доставить сообщение. Попробуйте позже.',
+  'r.sending': 'Отправка…',
+  'r.agoNow': 'Только что отправлено.',
+  'r.ago': 'Отправлено {min} мин назад.',
+  'r.keepOpen': 'Не закрывайте эту страницу, чтобы увидеть ответ.',
+  'r.reply.text': 'Водитель пишет:',
+  'r.more': 'Отправить ещё одно сообщение',
+  'r.needText': 'Напишите короткое сообщение.',
+  'foot': 'Приватные наклейки не требуют аккаунта и ничего не сохраняют.',
+}
+
+export const SCANNER_LANGS = { fr, es, nl, pl, tr, uk, ru } as const
+export type Lang = FullLang | keyof typeof SCANNER_LANGS
+
+// Native names, in the order shown in the language picker: full languages first.
+export const LANG_NAMES: Record<Lang, string> = {
+  de: 'Deutsch',
+  en: 'English',
+  it: 'Italiano',
+  fr: 'Français',
+  es: 'Español',
+  nl: 'Nederlands',
+  pl: 'Polski',
+  tr: 'Türkçe',
+  uk: 'Українська',
+  ru: 'Русский',
+}
+
+const isLang = (s: string): s is Lang => s in LANGS || s in SCANNER_LANGS
+const dict = (l: Lang): Partial<Dict> => (l in LANGS ? LANGS[l as FullLang] : SCANNER_LANGS[l as keyof typeof SCANNER_LANGS])
 
 const STORAGE_KEY = 'parkzettel.lang'
 
 function detect(): Lang {
   try {
     const saved = localStorage.getItem(STORAGE_KEY)
-    if (saved && saved in LANGS) return saved as Lang
+    if (saved && isLang(saved)) return saved
   } catch {}
   for (const l of navigator.languages ?? [navigator.language]) {
     const base = l.slice(0, 2).toLowerCase()
-    if (base in LANGS) return base as Lang
+    if (isLang(base)) return base
   }
   return 'en'
 }
@@ -342,7 +627,7 @@ const listeners = new Set<() => void>()
 export const lang = () => current
 
 export function t(key: Key, vars: Record<string, string> = {}): string {
-  return LANGS[current][key].replace(/\{(\w+)\}/g, (_, k) => vars[k] ?? '')
+  return (dict(current)[key] ?? en[key]).replace(/\{(\w+)\}/g, (_, k) => vars[k] ?? '')
 }
 
 export function setLang(l: Lang) {

@@ -96,29 +96,34 @@ h2 {
 }
 
 .langs {
-  display: flex;
-  border: 2px solid var(--ink);
-  border-radius: 8px;
-  overflow: hidden;
+  position: relative;
+  display: inline-block;
 }
 
-.langs button {
-  border: 0;
-  background: none;
+.langs select {
+  appearance: none;
+  border: 2px solid var(--ink);
+  border-radius: 8px;
+  background: transparent;
   color: var(--ink);
   font: 700 15px/1 var(--sign);
-  letter-spacing: 0.04em;
-  padding: 7px 12px;
+  letter-spacing: 0.02em;
+  padding: 8px 30px 8px 12px;
   cursor: pointer;
 }
 
-.langs button + button {
-  border-left: 2px solid var(--ink);
-}
-
-.langs button[aria-pressed='true'] {
-  background: var(--ink);
-  color: var(--ground);
+/* Chevron drawn by the label so the select can keep appearance: none. */
+.langs::after {
+  content: '';
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  width: 7px;
+  height: 7px;
+  border-right: 2px solid var(--ink);
+  border-bottom: 2px solid var(--ink);
+  transform: translateY(-70%) rotate(45deg);
+  pointer-events: none;
 }
 
 #view {
