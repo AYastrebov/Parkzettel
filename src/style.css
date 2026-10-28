@@ -136,6 +136,11 @@ h2 {
   padding: 16px 16px calc(16px + env(safe-area-inset-bottom));
 }
 
+.foot-link {
+  color: inherit;
+  font-weight: 600;
+}
+
 /* ---------- buttons ---------- */
 
 .btn {
@@ -596,4 +601,63 @@ textarea:focus {
 .bad p {
   color: var(--muted);
   margin-bottom: 24px;
+}
+
+/* ---------- account page ---------- */
+
+.view-account {
+  max-width: 640px !important;
+}
+
+.account h1 {
+  font-size: clamp(36px, 5.5vw, 52px);
+  margin: 24px 0 16px;
+}
+
+.account .lead {
+  margin: 0 0 32px;
+}
+
+.acc-out,
+.acc-in {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 16px;
+}
+
+.acc-out[hidden],
+.acc-in[hidden] {
+  display: none;
+}
+
+.tg-login {
+  min-height: 48px;
+}
+
+.small {
+  color: var(--muted);
+  font-size: 15px;
+  margin: 0;
+}
+
+.acc-status {
+  font-weight: 600;
+  margin: 0;
+}
+
+.acc-in p {
+  margin: 0;
+}
+
+.acc-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 8px;
+}
+
+.btn.danger {
+  border-color: var(--danger);
+  color: var(--danger);
 }

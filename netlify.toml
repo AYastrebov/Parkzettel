@@ -2,13 +2,22 @@
   command = "npm run build"
   publish = "dist"
 
-# style-src needs 'unsafe-inline' for the <style> that embeds the font inside the sticker SVG.
-# font-src and img-src allow data:/blob: for that font and for the PNG export.
+[functions]
+  directory = "netlify/functions"
+
+# The main Content-Security-Policy is a <meta> tag in each HTML page, because the account page needs to
+# allow Telegram's login widget and Netlify merges overlapping header rules into one header. The header
+# only adds directives that a <meta> CSP cannot express.
 [[headers]]
   for = "/*"
   [headers.values]
-    Content-Security-Policy = "default-src 'none'; script-src 'self'; style-src 'self' 'unsafe-inline'; font-src 'self' data:; img-src 'self' data: blob:; connect-src 'none'; base-uri 'none'; form-action 'none'; frame-ancestors 'none'"
+    Content-Security-Policy = "frame-ancestors 'none'; base-uri 'none'; form-action 'none'; object-src 'none'"
     Permissions-Policy = "camera=(), microphone=(), geolocation=(), payment=(), usb=()"
     Referrer-Policy = "no-referrer"
     X-Content-Type-Options = "nosniff"
     X-Frame-Options = "DENY"
+
+[[redirects]]
+  from = "/account"
+  to = "/account.html"
+  status = 200

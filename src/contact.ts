@@ -17,13 +17,13 @@ const TEMPLATE = `
   <a class="big tg" data-ch="telegram" hidden target="_blank" rel="noopener">${icon('telegram', 28)}<span data-i18n="c.tg"></span></a>
 </div>
 <p class="hint" data-i18n="c.hint"></p>
-<a class="create" href="./" data-i18n="c.create"></a>`
+<a class="create" href="/" data-i18n="c.create"></a>`
 
 const BAD = `
 <div class="bad">
   <h1 data-i18n="bad.title"></h1>
   <p data-i18n="bad.body"></p>
-  <a class="btn primary" href="./" data-i18n="c.create"></a>
+  <a class="btn primary" href="/" data-i18n="c.create"></a>
 </div>`
 
 function fill(root: HTMLElement, c: Contact) {
