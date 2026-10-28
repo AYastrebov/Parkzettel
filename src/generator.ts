@@ -1,9 +1,8 @@
 import { PHONE_RE, seal, TELEGRAM_RE, type Contact } from './codec'
 import { lang, onLangChange, t, translate, type Key } from './i18n'
-import type { IconName } from './icons'
 import { COUNTRIES, EU_STARS_SVG } from './plate'
 import { canShareFiles, printSticker, shareSticker } from './share'
-import { stickerSvg, svgToPngBlob } from './sticker'
+import { stickerSvg, svgToPngBlob, type Channel } from './sticker'
 
 // The plate sits outside the <form> in the hero; form="gen" still makes it a form control.
 const TEMPLATE = `
@@ -160,7 +159,7 @@ export function renderGenerator(root: HTMLElement) {
     // Until the form is complete, show a faded draft that already follows the chosen channels.
     // Private stickers always point at the site root (/#token), whichever page the generator runs on.
     let url = new URL('/', location.href).href
-    const channels: IconName[] = []
+    const channels: Channel[] = []
     if (res.ok) {
       url = new URL('#' + (await seal(res.contact)), url).href
       if (res.contact.call) channels.push('call')

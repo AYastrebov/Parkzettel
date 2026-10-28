@@ -14,7 +14,10 @@ const esc = (s: string) =>
 // RAL 1023 traffic yellow and RAL 9017 traffic black.
 const YELLOW = '#f7ba0b'
 const BLACK = '#1e1e1e'
-const CHANNEL_COLORS: Record<IconName, string> = { call: BLACK, whatsapp: '#1faa53', telegram: '#229ed9', message: BLACK }
+// Icons that can appear as contact badges on a sticker.
+export type Channel = Exclude<IconName, 'github'>
+
+const CHANNEL_COLORS: Record<Channel, string> = { call: BLACK, whatsapp: '#1faa53', telegram: '#229ed9', message: BLACK }
 
 export interface StickerText {
   title: string
@@ -25,7 +28,7 @@ export interface StickerText {
 // Self-contained SVG (no external fonts or images) so it can be printed as is or rasterized to PNG.
 // Private stickers carry a long URL, so they stay at level M to keep the code scannable; relay URLs are
 // short enough for level H, which survives glare, dirt and a wet windshield much better.
-export async function stickerSvg(url: string, text: StickerText, channels: IconName[], ecl: 'M' | 'H' = 'M'): Promise<string> {
+export async function stickerSvg(url: string, text: StickerText, channels: Channel[], ecl: 'M' | 'H' = 'M'): Promise<string> {
   const qr = await QRCode.toString(url, { errorCorrectionLevel: ecl, margin: 0, color: { dark: BLACK, light: '#ffffff' } })
   const qrSize = 290
   const qrX = (W - qrSize) / 2
