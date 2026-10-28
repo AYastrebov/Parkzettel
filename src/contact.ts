@@ -10,6 +10,7 @@ const TEMPLATE = `
   <span class="plate-num"></span>
 </h1>
 <p class="note" hidden></p>
+<p class="check-plate" data-i18n="c.check"></p>
 <div class="contact-actions">
   <a class="big call" data-ch="call" hidden>${icon('call', 28)}<span data-i18n="c.call"></span></a>
   <a class="big wa" data-ch="whatsapp" hidden target="_blank" rel="noopener">${icon('whatsapp', 28)}<span data-i18n="c.wa"></span></a>

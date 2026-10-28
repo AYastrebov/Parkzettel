@@ -77,8 +77,10 @@ The site is a set of static files, and all the work happens in the browser. The 
 
 > [!IMPORTANT]
 > The person who scans the code has to be able to read it, so the decryption key is part of the QR.
-> Encryption keeps your data out of logs, link previews and crawlers, and it makes tampering detectable.
-> Anyone who scans the sticker will still see the contact options you chose.
+> Encryption keeps your data from being readable at a glance in the URL, and it detects damaged links.
+> It does not stop anyone who has the link, or a photo of the sticker, from seeing the contact options you chose.
+> It also cannot prove who made a sticker: anyone can create one, so the contact page asks scanners to check that the plate matches the car.
+> To keep your phone number private, offer Telegram only or use a second number.
 
 > [!TIP]
 > If your number changes, create a new sticker. Without a database, there is nothing to update.

@@ -48,6 +48,7 @@ const TEMPLATE = `
   <label class="field">
     <span data-i18n="f.tg"></span>
     <div class="prefixed"><span>@</span><input name="telegram" autocomplete="off" autocapitalize="none" spellcheck="false" maxlength="33" /></div>
+    <small data-i18n="f.tgHint"></small>
   </label>
   <label class="field">
     <span data-i18n="f.note"></span>
