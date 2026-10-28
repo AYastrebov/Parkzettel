@@ -70,21 +70,6 @@ const TEMPLATE = `
     <h2 data-i18n="priv.title"></h2>
     <p data-i18n="priv.body"></p>
   </div>
-</section>
-<section class="compare">
-  <h2 data-i18n="cmp.title"></h2>
-  <div class="compare-grid">
-    <div>
-      <h3 data-i18n="cmp.private"></h3>
-      <ul><li data-i18n="cmp.p1"></li><li data-i18n="cmp.p2"></li><li data-i18n="cmp.p3"></li></ul>
-      <p class="small" data-i18n="cmp.pNote"></p>
-    </div>
-    <div>
-      <h3 data-i18n="cmp.relay"></h3>
-      <ul><li data-i18n="cmp.r1"></li><li data-i18n="cmp.r2"></li><li data-i18n="cmp.r3"></li></ul>
-      <a class="btn" href="/account" data-i18n="cmp.relayLink"></a>
-    </div>
-  </div>
 </section>`
 
 // Returns E.164 ('+491701234567'), '' for empty input, or null when invalid.
@@ -173,7 +158,8 @@ export function renderGenerator(root: HTMLElement) {
     showError()
 
     // Until the form is complete, show a faded draft that already follows the chosen channels.
-    let url = location.href.split('#')[0]
+    // Private stickers always point at the site root (/#token), whichever page the generator runs on.
+    let url = new URL('/', location.href).href
     const channels: IconName[] = []
     if (res.ok) {
       url = new URL('#' + (await seal(res.contact)), url).href

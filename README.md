@@ -17,6 +17,7 @@ A **relay sticker** hides your phone number: messages reach you through a Telegr
 [![Languages](https://img.shields.io/badge/i18n-DE%20%C2%B7%20EN%20%C2%B7%20IT%20%2B%207%20scanner%20languages-141414)](#languages)
 
 [Live site](https://parkzettel.netlify.app/) ·
+[Create a sticker](https://parkzettel.netlify.app/create) ·
 [How it works](#how-it-works) ·
 [Run locally](#run-locally) ·
 [Run your own copy](#run-your-own-copy)
@@ -24,6 +25,10 @@ A **relay sticker** hides your phone number: messages reach you through a Telegr
 </div>
 
 <br />
+
+<p align="center">
+  <img src="docs/landing.png" alt="Landing page" />
+</p>
 
 <table>
   <tr>
@@ -46,6 +51,7 @@ A **relay sticker** hides your phone number: messages reach you through a Telegr
 - "Print" gives you a ready-made A4 sheet with two 8 cm stickers and cut lines. On phones, "Share" opens the share sheet. PNG and SVG downloads are there too. Every sticker prints the site's domain under the code, so people can see where it leads before they scan.
 - The whole site speaks German, English and Italian. The pages a scanner sees also come in French, Spanish, Dutch, Polish, Turkish, Ukrainian and Russian. The language follows the browser and can be switched at any time.
 - Built for a phone held next to a car: big buttons, dark mode, about 50 kB of gzipped JavaScript with the fonts bundled.
+- The landing page at `/` explains the idea and has a "Share Parkzettel" button; shared links show a preview card (Open Graph, `public/og.png`). The generator lives at `/create`.
 
 ## How it works
 
@@ -201,7 +207,9 @@ Private stickers work on any static host without steps 2 and 3.
 ```
 src/
 ├── chrome.ts      # shared header, language picker, footer
-├── main.ts        # public app entry, routing (#token → contact page, /s/<id> → relay page)
+├── main.ts        # public app entry, routing: /s/<id> → relay page, /#token → contact page,
+│                  #   /create → generator, / → landing page
+├── landing.ts     # marketing page with live sticker and phone mockup, share button
 ├── generator.ts   # create mode: form, validation, preview, print/share/downloads
 ├── contact.ts     # private sticker scan page: plate + contact buttons
 ├── relay.ts       # relay sticker scan page: send a message, see the reply
@@ -216,6 +224,10 @@ src/
 netlify/
 ├── functions/     # login, session, stickers, relay messages, bot webhook, hourly cleanup
 └── lib/           # crypto, session cookie, Blobs stores, validation, rate limit, Telegram API, bot texts
+scripts/
+├── screenshots.mjs  # regenerates docs/*.png (npm run screenshots; needs netlify dev)
+├── frame.mjs        # phone frame for screenshots
+└── og-image.mjs     # renders public/og.png, the link-preview card (npm run og-image)
 ```
 
 AI coding agents: see [`AGENTS.md`](AGENTS.md).
