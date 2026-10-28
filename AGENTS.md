@@ -48,7 +48,9 @@ the "Test the page" link, and confirm the buttons' `href`s. Do this in at least 
 
 7. **Relay stickers never reveal the owner.** Scanner-facing endpoints (`/api/s/*`, `/api/m/*`) return plate,
    country, note, active flag and reply only, never the Telegram ID. Bot replies are accepted only from the
-   sticker's owner. Owner-facing bot texts live in `netlify/lib/bot-text.ts` (DE/EN/IT, same tone rules).
+   sticker's owner, including free-text replies (routed via `tg|<chat>|<telegram message id>` refs in the
+   `messages` store) and the switch-off button. Owner-facing bot texts live in `netlify/lib/bot-text.ts`
+   (DE/EN/IT, same tone rules).
 
 ## Code style
 

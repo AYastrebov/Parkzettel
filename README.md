@@ -93,7 +93,9 @@ keep their number private:
 - The QR code holds only a short link (`/s/<id>`), so it is much less dense than a private sticker's.
 - Scanners pick a message ("You are blocking me in", "Your lights are on", or their own text) and send it through
   [@ParkzettelBot](https://t.me/ParkzettelBot). The owner answers with one tap ("On my way", "In about 10 minutes",
-  "Can't come right now"), and the scanner sees the answer on the page. Neither side sees the other's phone number.
+  "Can't come right now") or by replying to the bot's message with their own text, and the scanner sees the answer on
+  the page and can send a follow-up. The bot's message also has a button to switch the sticker off. Neither side
+  sees the other's phone number.
 - Owners log in at `/account` with Telegram, and can change the plate or note, switch a sticker off, or delete it
   without reprinting.
 

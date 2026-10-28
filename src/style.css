@@ -813,7 +813,7 @@ textarea:focus {
 }
 
 .relay-status {
-  margin: 28px 0;
+  margin: 24px 0 8px;
   padding: 20px;
   border: 3px solid var(--ink);
   border-radius: 12px;
@@ -832,4 +832,18 @@ textarea:focus {
 
 .status-sub:empty {
   display: none;
+}
+
+.status-quote {
+  margin: 10px 0 0;
+  padding: 10px 14px;
+  border-left: 4px solid var(--yellow);
+  background: var(--ground);
+  font-size: 19px;
+  text-align: left;
+  overflow-wrap: anywhere;
+}
+
+.relay-form .error {
+  margin: 0;
 }
