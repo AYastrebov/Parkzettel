@@ -2,6 +2,9 @@ import '@fontsource/barlow-condensed/600.css'
 import '@fontsource/barlow-condensed/700.css'
 import '@fontsource/barlow/400.css'
 import '@fontsource/barlow/600.css'
+// Barlow has no Cyrillic; Ukrainian and Russian fall back to Roboto Condensed (fetched only when needed).
+import '@fontsource/roboto-condensed/cyrillic-600.css'
+import '@fontsource/roboto-condensed/cyrillic-700.css'
 import './style.css'
 import { lang, LANG_NAMES, onLangChange, setLang, t, type Lang } from './i18n'
 
