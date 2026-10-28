@@ -22,6 +22,12 @@
   to = "/account.html"
   status = 200
 
+# The generator; the landing page is "/".
+[[redirects]]
+  from = "/create"
+  to = "/index.html"
+  status = 200
+
 # Relay stickers: the QR code holds /s/<id>; the public app renders it.
 [[redirects]]
   from = "/s/*"

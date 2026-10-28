@@ -2,7 +2,7 @@
 import { chromium } from 'playwright'
 import { readFileSync } from 'fs'
 const [,, input, output] = process.argv
-const b = await chromium.launch()
+const b = await chromium.launch(process.env.CHROMIUM ? { executablePath: process.env.CHROMIUM } : {})
 const p = await b.newPage({ viewport: { width: 470, height: 990 }, deviceScaleFactor: 2 })
 const src = 'data:image/png;base64,' + readFileSync(input).toString('base64')
 await p.setContent(`<style>

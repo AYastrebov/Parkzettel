@@ -3,8 +3,11 @@
 Parkzettel is a static web app (Vite + vanilla TypeScript, no framework) that makes QR car stickers.
 It has two modes, chosen in `src/main.ts` by the URL fragment:
 
-- `/`: generator (`src/generator.ts`). The owner enters plate and contact channels and downloads a sticker.
-- `/#<token>`: contact page (`src/contact.ts`). It shows the plate and Call / WhatsApp / Telegram buttons.
+- `/`: landing page (`src/landing.ts`), the page people share.
+- `/create`: generator (`src/generator.ts`). The owner enters plate and contact channels and downloads a sticker.
+- `/#<token>`: private sticker contact page (`src/contact.ts`). Printed stickers point here, so `/` with a
+  fragment must always open the contact page, and the generator always encodes the root URL.
+- `/s/<id>`: relay sticker page (`src/relay.ts`); `/account`: owner page (`account.html`).
 
 There is no backend. Contact data lives only in the encrypted token inside the QR code.
 
@@ -74,7 +77,8 @@ the "Test the page" link, and confirm the buttons' `href`s. Do this in at least 
 
 ```
 src/chrome.ts      shared header, language switcher, footer
-src/main.ts        public app entry: routing (#token → contact page)
+src/main.ts        public app entry: routing (/s/<id>, /#token, /create, / → landing)
+src/landing.ts     landing page
 src/account.ts     owner account page: Telegram login, relay sticker management
 src/relay.ts       relay scan page (/s/<id>): message the owner, poll for the reply
 netlify/functions/ API: login, session (/api/me), stickers, relay (/api/s, /api/m), webhook, cleanup
@@ -101,6 +105,8 @@ netlify.toml       Netlify build + headers (production: parkzettel.netlify.app)
 - Vite builds two pages (`index.html`, `account.html`); `/account` is routed to `account.html` in `netlify.toml`.
 - Secrets (`TELEGRAM_BOT_TOKEN`, `TELEGRAM_WEBHOOK_SECRET`, `SESSION_SECRET`) live only in Netlify environment
   variables scoped to Functions. Never expose them to the Vite build (`import.meta.env`).
+- Open Graph tags in `index.html` use absolute `https://parkzettel.netlify.app/` URLs; update them (and
+  `SITE` in `scripts/og-image.mjs`, then `npm run og-image`) if the domain changes.
 - The Telegram webhook is registered by `POST /api/telegram/setup` on production; rerun it if the URL changes.
 - Token length drives QR density. Don't add payload fields or long defaults without a good reason.
 
