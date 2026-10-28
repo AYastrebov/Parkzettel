@@ -1,0 +1,78 @@
+# AGENTS.md
+
+Parkzettel is a static web app (Vite + vanilla TypeScript, no framework) that makes QR car stickers.
+It has two modes, chosen in `src/main.ts` by the URL fragment:
+
+- `/`: generator (`src/generator.ts`). The owner enters plate and contact channels and downloads a sticker.
+- `/#<token>`: contact page (`src/contact.ts`). It shows the plate and Call / WhatsApp / Telegram buttons.
+
+There is no backend. Contact data lives only in the encrypted token inside the QR code.
+
+## Commands
+
+- Install: `npm install`
+- Dev server: `npm run dev` (http://localhost:5173)
+- Type-check and build: `npm run build`. Run it after every change; it must pass with zero errors.
+- Preview the production build: `npm run preview`
+
+There is no automated test suite. Check changes in a browser: create a sticker in the generator, open
+the "Test the page" link, and confirm the buttons' `href`s. Do this in at least one non-English language.
+
+## Hard rules
+
+1. **Never break printed stickers.** Tokens produced by `seal()` in `src/codec.ts` are printed on cars and
+   cannot be updated. `open()` must keep decoding every token version that was ever released. To change
+   the format, add a new version prefix (`'2'`, …) and keep the old decoder. Never change the meaning of
+   the short payload keys (`p`, `c`, `w`, `t`, `n`, and `w: '='`).
+2. **No server-side data.** Do not add a backend, database, analytics, error reporting, or anything that
+   sends contact data off the device. Contact data must stay in the URL fragment.
+3. **No external requests at runtime.** No CDNs, Google Fonts, or remote images. Bundle fonts through
+   `@fontsource/*`. This is a privacy promise (and a GDPR concern in Germany).
+4. **Treat decoded data as untrusted.** Anyone can craft a token. Insert user values with `textContent`
+   or `esc()` in `src/sticker.ts`, never by building `innerHTML` from them. Build links only from validated
+   values: E.164 phone numbers and Telegram usernames matching `^[a-zA-Z][a-zA-Z0-9_]{4,31}$`.
+5. **Keep all three languages in sync.** Every user-visible string goes through `t()` / `data-i18n` in
+   `src/i18n.ts`, with DE, EN and IT entries. The `Dict` type makes a missing key a build error. Write German
+   with formal *Sie*, Italian with informal *tu* (matching the existing strings), and avoid em dashes in copy.
+6. **Sticker SVG must stay self-contained.** `stickerSvg()` output is rasterized via `<img>`, which cannot load
+   web fonts or external resources. Use only inline shapes and system font stacks there.
+
+## Code style
+
+- TypeScript strict mode; `noUnusedLocals` and `noUnusedParameters` are on.
+- Two-space indent, single quotes, no semicolons, trailing commas in multi-line literals.
+- Plain DOM APIs and template strings; no UI framework. Keep dependencies minimal (currently only
+  `qrcode` and a bundled font). Ask before adding one.
+- Comments explain *why*, sparingly. Match the density of the surrounding code.
+- Styling lives in `src/style.css` with CSS custom properties on `:root` and a `prefers-color-scheme: dark`
+  override. Keep the contact page usable at 360 px wide.
+
+## Project layout
+
+```
+src/main.ts        app shell, language switcher, routing
+src/generator.ts   create mode: form, validation, preview, downloads
+src/contact.ts     scan mode
+src/codec.ts       payload packing + AES-GCM seal/open (token format lives here)
+src/sticker.ts     sticker SVG and PNG export
+src/i18n.ts        DE / EN / IT dictionaries, language detection
+src/icons.ts       Lucide-derived icon paths (ISC)
+docs/              README screenshots
+.github/workflows/deploy.yml   GitHub Pages deploy
+netlify.toml       Netlify build + headers
+```
+
+## Gotchas
+
+- Web Crypto (`crypto.subtle`) exists only on HTTPS or `localhost`. Over a plain-HTTP LAN address the contact
+  page fails to decrypt and shows the error view.
+- The QR encodes the full URL of the page the generator runs on, so stickers made on `localhost` only work
+  on that machine.
+- `vite.config.ts` uses `base: './'` so the build works under a GitHub Pages sub-path. Keep asset paths relative.
+- Token length drives QR density. Don't add payload fields or long defaults without a good reason.
+
+## Commits and PRs
+
+- Imperative, concise subject lines (`Add Spanish translation`, `Fix WhatsApp link for numbers with spaces`).
+- When the UI changes, update the screenshots in `docs/` and mention it in the PR.
+- If a change touches `src/codec.ts`, state in the PR how existing tokens stay decodable.
