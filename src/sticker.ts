@@ -14,7 +14,7 @@ const esc = (s: string) =>
 // RAL 1023 traffic yellow and RAL 9017 traffic black.
 const YELLOW = '#f7ba0b'
 const BLACK = '#1e1e1e'
-const CHANNEL_COLORS: Record<IconName, string> = { call: BLACK, whatsapp: '#1faa53', telegram: '#229ed9' }
+const CHANNEL_COLORS: Record<IconName, string> = { call: BLACK, whatsapp: '#1faa53', telegram: '#229ed9', message: BLACK }
 
 export interface StickerText {
   title: string

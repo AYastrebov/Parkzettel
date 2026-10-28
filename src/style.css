@@ -661,3 +661,175 @@ textarea:focus {
   border-color: var(--danger);
   color: var(--danger);
 }
+
+.relay-hint {
+  margin: 16px 0 0;
+}
+
+.relay-hint a {
+  color: var(--ink);
+  font-weight: 600;
+}
+
+.sticker-list {
+  list-style: none;
+  margin: 0 0 8px;
+  padding: 0;
+  display: grid;
+  gap: 16px;
+  width: 100%;
+}
+
+.sticker-item {
+  display: grid;
+  gap: 10px;
+  padding: 16px 0;
+  border-top: 3px solid var(--ink);
+}
+
+.sticker-item.off .plate-input {
+  text-decoration: line-through;
+  opacity: 0.6;
+}
+
+.item-row,
+.new-row {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.item-row select,
+.new-row select {
+  flex: none;
+  font: 700 20px/1 var(--sign);
+  padding: 10px 6px;
+  border: 2px solid var(--line);
+  border-radius: 8px;
+  background: var(--eu-blue);
+  color: #fff;
+}
+
+.plate-input {
+  font: 600 26px/1 var(--sign) !important;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.badge {
+  flex: none;
+  font: 700 15px/1 var(--sign);
+  padding: 6px 10px;
+  border-radius: 6px;
+  background: var(--yellow);
+  color: var(--on-yellow);
+}
+
+.sticker-item.off .badge {
+  background: var(--line);
+  color: var(--ink);
+}
+
+.item-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.new-sticker {
+  display: grid;
+  gap: 10px;
+  width: 100%;
+  padding-top: 24px;
+  border-top: 3px solid var(--ink);
+}
+
+.new-sticker h2 {
+  font-size: 28px;
+}
+
+.new-sticker .btn {
+  justify-self: start;
+}
+
+.acc-footer {
+  margin-top: 32px;
+  display: grid;
+  gap: 12px;
+}
+
+/* ---------- relay scanner page ---------- */
+
+.relay-form {
+  display: grid;
+  gap: 12px;
+  margin: 16px 0;
+  text-align: left;
+}
+
+.r-lead {
+  color: var(--muted);
+  margin: 0;
+}
+
+.presets {
+  border: 0;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 8px;
+}
+
+.presets label {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-height: 52px;
+  padding: 0 14px;
+  border: 2px solid var(--line);
+  border-radius: 10px;
+  background: var(--raised);
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.presets label:has(input:checked) {
+  border-color: var(--ink);
+}
+
+.presets input {
+  width: 20px;
+  height: 20px;
+  accent-color: var(--ink);
+}
+
+.relay-form .big {
+  border: 2px solid var(--on-yellow);
+  cursor: pointer;
+}
+
+.relay-form .big:disabled {
+  opacity: 0.5;
+}
+
+.relay-status {
+  margin: 28px 0;
+  padding: 20px;
+  border: 3px solid var(--ink);
+  border-radius: 12px;
+  background: var(--raised);
+}
+
+.status-main {
+  font: 700 26px/1.15 var(--sign);
+  margin: 0;
+}
+
+.status-sub {
+  color: var(--muted);
+  margin: 8px 0 0;
+}
+
+.status-sub:empty {
+  display: none;
+}

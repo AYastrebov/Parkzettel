@@ -85,15 +85,22 @@ The site is a set of static files, and all the work happens in the browser. The 
 > [!TIP]
 > If your number changes, create a new sticker. Without a database, there is nothing to update.
 
-## Relay stickers (in progress)
+## Relay stickers
 
-Private stickers are the default and need no account. Relay stickers are an opt-in alternative: the QR code holds a
-short ID, and scanners message the owner through [@ParkzettelBot](https://t.me/ParkzettelBot) on Telegram, so neither
-side sees the other's phone number. Owners log in at `/account` with Telegram.
+Private stickers are the default and need no account. Relay stickers are an opt-in alternative for owners who want to
+keep their number private:
 
-The backend is a few Netlify Functions (`netlify/functions/`) with Netlify Blobs for storage. It keeps only the owner's
-numeric Telegram ID; the name, username and photo from the Telegram login are discarded. Telegram's login script
-loads only on the account page, never on the pages scanners see.
+- The QR code holds only a short link (`/s/<id>`), so it is much less dense than a private sticker's.
+- Scanners pick a message ("You are blocking me in", "Your lights are on", or their own text) and send it through
+  [@ParkzettelBot](https://t.me/ParkzettelBot). The owner answers with one tap ("On my way", "In about 10 minutes",
+  "Can't come right now"), and the scanner sees the answer on the page. Neither side sees the other's phone number.
+- Owners log in at `/account` with Telegram, and can change the plate or note, switch a sticker off, or delete it
+  without reprinting.
+
+What is stored (Netlify Blobs): the owner's numeric Telegram ID and language, each sticker's plate, country code and
+note, and scanner messages for 24 hours. Rate-limit counters use HMACs of the IP address and expire after 10 minutes.
+Names, usernames, photos and raw IP addresses are never stored. Telegram's login script loads only on the account
+page, never on pages scanners see.
 
 ## Languages
 
@@ -135,7 +142,8 @@ Any other static host works too: run `npm run build` and serve `dist/`.
 src/
 ├── chrome.ts      # shared header, language switcher, footer
 ├── main.ts        # public app entry, routing (#token → contact page)
-├── account.ts     # owner account page (Telegram login)
+├── account.ts     # owner account page: Telegram login, relay sticker management
+├── relay.ts       # scan mode for relay stickers (/s/<id>): send a message, see the reply
 ├── generator.ts   # create mode: form, validation, preview, downloads
 ├── contact.ts     # scan mode: plate + contact buttons
 ├── codec.ts       # compact payload + AES-GCM seal/open
@@ -145,7 +153,7 @@ src/
 ├── plate.ts       # EU plate stars and country codes
 └── style.css
 netlify/
-├── functions/     # API: Telegram login, session, bot webhook
+├── functions/     # API: login, session, stickers, relay messages, bot webhook, hourly cleanup
 └── lib/           # crypto, session cookie, Blobs stores, Telegram API
 ```
 

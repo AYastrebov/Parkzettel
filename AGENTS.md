@@ -14,7 +14,8 @@ There is no backend. Contact data lives only in the encrypted token inside the Q
 - Dev server: `npm run dev` (http://localhost:5173), frontend only
 - With functions: `npx netlify-cli dev` (http://localhost:8888). Set `SESSION_SECRET`, `TELEGRAM_BOT_TOKEN`
   and `TELEGRAM_WEBHOOK_SECRET` to dummy values in the shell. The account page shows a "Dev login" button on
-  localhost, because Telegram's widget only works on the registered domain.
+  localhost, because Telegram's widget only works on the registered domain. Add `TELEGRAM_DRY_RUN=1` to log
+  bot calls instead of sending them.
 - Type-check and build: `npm run build`. Run it after every change; it must pass with zero errors.
 - Preview the production build: `npm run preview`
 
@@ -45,6 +46,10 @@ the "Test the page" link, and confirm the buttons' `href`s. Do this in at least 
 6. **Sticker SVG must stay self-contained.** `stickerSvg()` output is rasterized via `<img>`, which cannot load
    external resources. Use inline shapes only; the font is embedded as a `?inline` data URL.
 
+7. **Relay stickers never reveal the owner.** Scanner-facing endpoints (`/api/s/*`, `/api/m/*`) return plate,
+   country, note, active flag and reply only, never the Telegram ID. Bot replies are accepted only from the
+   sticker's owner. Owner-facing bot texts live in `netlify/lib/bot-text.ts` (DE/EN/IT, same tone rules).
+
 ## Code style
 
 - TypeScript strict mode; `noUnusedLocals` and `noUnusedParameters` are on.
@@ -63,9 +68,11 @@ the "Test the page" link, and confirm the buttons' `href`s. Do this in at least 
 ```
 src/chrome.ts      shared header, language switcher, footer
 src/main.ts        public app entry: routing (#token → contact page)
-src/account.ts     owner account page (Telegram login)
-netlify/functions/ API: Telegram login, session, webhook, webhook setup
-netlify/lib/       server helpers: crypto, session cookie, Blobs stores, Telegram API
+src/account.ts     owner account page: Telegram login, relay sticker management
+src/relay.ts       relay scan page (/s/<id>): message the owner, poll for the reply
+netlify/functions/ API: login, session (/api/me), stickers, relay (/api/s, /api/m), webhook, cleanup
+netlify/lib/       server helpers: crypto, session cookie, Blobs stores + types, validation, rate limit,
+                   Telegram API, owner-facing bot texts (bot-text.ts)
 src/generator.ts   create mode: form, validation, preview, downloads
 src/contact.ts     scan mode
 src/codec.ts       payload packing + AES-GCM seal/open (token format lives here)

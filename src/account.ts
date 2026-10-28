@@ -1,7 +1,11 @@
 import { mountChrome } from './chrome'
-import { lang, onLangChange, t, translate } from './i18n'
+import { lang, onLangChange, t, translate, type Key } from './i18n'
+import { COUNTRIES } from './plate'
+import { stickerSvg, svgToPngBlob } from './sticker'
 
 const BOT_USERNAME = 'ParkzettelBot'
+
+const COUNTRY_OPTIONS = `<option value="">–</option>${COUNTRIES.map((c) => `<option>${c}</option>`).join('')}`
 
 const TEMPLATE = `
 <section class="account">
@@ -13,15 +17,53 @@ const TEMPLATE = `
     <p class="small" data-i18n="acc.stored"></p>
   </div>
   <div class="acc-in" hidden>
-    <p class="acc-status" data-i18n="acc.in"></p>
-    <p data-i18n="acc.soon"></p>
-    <div class="acc-actions">
-      <button type="button" class="btn" data-act="logout" data-i18n="acc.logout"></button>
-      <button type="button" class="btn danger" data-act="delete" data-i18n="acc.delete"></button>
+    <ul class="sticker-list"></ul>
+    <p class="small acc-empty" data-i18n="acc.empty" hidden></p>
+    <form class="new-sticker" novalidate>
+      <h2 data-i18n="acc.new"></h2>
+      <div class="new-row">
+        <select name="country" data-i18n-label="f.country">${COUNTRY_OPTIONS}</select>
+        <input name="plate" class="plate-input" maxlength="16" autocomplete="off" autocapitalize="characters" placeholder="M-AB 1234" data-i18n-label="f.plate" />
+      </div>
+      <input name="note" maxlength="100" data-i18n-ph="f.notePh" data-i18n-label="f.note" />
+      <button type="submit" class="btn primary" data-i18n="acc.create"></button>
+      <p class="small" data-i18n="acc.limit"></p>
+    </form>
+    <div class="acc-footer">
+      <p class="acc-status" data-i18n="acc.in"></p>
+      <div class="acc-actions">
+        <button type="button" class="btn" data-act="logout" data-i18n="acc.logout"></button>
+        <button type="button" class="btn danger" data-act="delete" data-i18n="acc.delete"></button>
+      </div>
     </div>
   </div>
   <p class="error" role="alert" hidden></p>
 </section>`
+
+const ITEM = `
+<li class="sticker-item">
+  <div class="item-row">
+    <select name="country" data-i18n-label="f.country">${COUNTRY_OPTIONS}</select>
+    <input name="plate" class="plate-input" maxlength="16" autocomplete="off" autocapitalize="characters" data-i18n-label="f.plate" />
+    <span class="badge"></span>
+  </div>
+  <input name="note" maxlength="100" data-i18n-ph="f.notePh" data-i18n-label="f.note" />
+  <div class="item-actions">
+    <button type="button" class="btn primary" data-act="png" data-i18n="p.png"></button>
+    <button type="button" class="btn" data-act="svg" data-i18n="p.svg"></button>
+    <a class="btn" data-act="open" target="_blank" rel="noopener" data-i18n="p.test"></a>
+    <button type="button" class="btn" data-act="toggle"></button>
+    <button type="button" class="btn danger" data-act="remove" data-i18n="acc.remove"></button>
+  </div>
+</li>`
+
+interface StickerView {
+  id: string
+  plate: string
+  country?: string
+  note?: string
+  active: boolean
+}
 
 // Telegram's widget replaces itself with an iframe, so it is re-created whenever the language changes.
 // On success it redirects to /api/auth/telegram, which verifies the login and sets the session cookie.
@@ -38,66 +80,151 @@ function mountWidget(el: HTMLElement) {
   el.append(s)
 }
 
-async function api(method: 'GET' | 'POST', body?: unknown) {
-  const res = await fetch('/api/me', {
+async function api<T>(path: string, method: 'GET' | 'POST' = 'GET', body?: Record<string, unknown>): Promise<T> {
+  const res = await fetch(path, {
     method,
     headers: body ? { 'content-type': 'application/json' } : undefined,
-    body: body ? JSON.stringify(body) : undefined,
+    body: body ? JSON.stringify({ ...body, lang: lang() }) : undefined,
   })
-  if (!res.ok) throw new Error(String(res.status))
-  return res.json() as Promise<{ loggedIn?: boolean; stickers?: number; ok?: boolean }>
-}
-
-async function render(root: HTMLElement) {
-  const out = root.querySelector<HTMLElement>('.acc-out')!
-  const inn = root.querySelector<HTMLElement>('.acc-in')!
-  const error = root.querySelector<HTMLElement>('.error')!
-  const failed = new URLSearchParams(location.search).get('login') === 'failed'
-  if (failed) history.replaceState(null, '', '/account')
-
-  const showError = (on: boolean) => {
-    error.hidden = !on
-    error.textContent = on ? t('acc.error') : ''
-  }
-
-  let me: { loggedIn?: boolean }
-  try {
-    me = await api('GET')
-  } catch {
-    showError(true)
-    return
-  }
-  showError(failed)
-  out.hidden = !!me.loggedIn
-  inn.hidden = !me.loggedIn
-  if (!me.loggedIn) {
-    if (location.hostname === 'localhost') root.querySelector<HTMLElement>('.dev-login')!.hidden = false
-    else mountWidget(root.querySelector('.tg-login')!)
-  }
+  const data = await res.json().catch(() => ({}))
+  if (!res.ok) throw Object.assign(new Error(String(res.status)), { code: (data as { error?: string }).error })
+  return data as T
 }
 
 const root = mountChrome()
 root.className = 'view-account'
 root.innerHTML = TEMPLATE
 translate(root)
-render(root)
+const errorEl = root.querySelector<HTMLElement>('.error')!
+let errorKey: Key | null = null
+
+function showError(key: Key | null) {
+  errorKey = key
+  errorEl.hidden = !key
+  errorEl.textContent = key ? t(key) : ''
+}
+
+// Per-item language refreshers; replaced on every render so detached items don't pile up.
+let itemSyncs: (() => void)[] = []
+
+const stickerUrl = (id: string) => new URL(`/s/${id}`, location.origin).href
+
+async function download(s: StickerView, kind: 'png' | 'svg') {
+  const svg = await stickerSvg(stickerUrl(s.id), { title: t('s.title'), sub: t('s.sub'), domain: location.host }, ['message'])
+  const blob = kind === 'svg' ? new Blob([svg], { type: 'image/svg+xml' }) : await svgToPngBlob(svg)
+  const a = document.createElement('a')
+  a.href = URL.createObjectURL(blob)
+  a.download = `parkzettel-${s.plate.replace(/[^A-Z0-9]+/gi, '-')}.${kind}`
+  a.click()
+  setTimeout(() => URL.revokeObjectURL(a.href), 1000)
+}
+
+function renderItem(s: StickerView): HTMLLIElement {
+  const tpl = document.createElement('template')
+  tpl.innerHTML = ITEM.trim()
+  const li = tpl.content.firstElementChild as HTMLLIElement
+  const field = <T extends HTMLElement = HTMLInputElement>(n: string) => li.querySelector(`[name="${n}"]`) as T
+  field<HTMLSelectElement>('country').value = s.country ?? ''
+  field('plate').value = s.plate
+  field('note').value = s.note ?? ''
+  li.querySelector<HTMLAnchorElement>('[data-act="open"]')!.href = stickerUrl(s.id)
+
+  const sync = () => {
+    translate(li)
+    li.classList.toggle('off', !s.active)
+    li.querySelector('.badge')!.textContent = t(s.active ? 'acc.active' : 'acc.inactive')
+    li.querySelector('[data-act="toggle"]')!.textContent = t(s.active ? 'acc.turnOff' : 'acc.turnOn')
+  }
+  sync()
+  itemSyncs.push(sync)
+
+  // Edits apply to the printed sticker right away; that is the point of relay stickers.
+  const save = async (patch: Record<string, unknown>) => {
+    try {
+      Object.assign(s, (await api<{ sticker: StickerView }>(`/api/stickers/${s.id}`, 'POST', { action: 'update', ...patch })).sticker)
+      showError(null)
+      sync()
+    } catch {
+      showError('acc.error')
+    }
+  }
+  li.addEventListener('change', (e) => {
+    const el = e.target as HTMLInputElement
+    if (el.name === 'plate') el.value = el.value.trim().toUpperCase()
+    save({ [el.name]: el.value })
+  })
+  li.querySelector('[data-act="png"]')!.addEventListener('click', () => download(s, 'png'))
+  li.querySelector('[data-act="svg"]')!.addEventListener('click', () => download(s, 'svg'))
+  li.querySelector('[data-act="toggle"]')!.addEventListener('click', () => save({ active: !s.active }))
+  li.querySelector('[data-act="remove"]')!.addEventListener('click', async () => {
+    if (!confirm(t('acc.removeConfirm'))) return
+    await api(`/api/stickers/${s.id}`, 'POST', { action: 'delete' })
+    render()
+  })
+  return li
+}
+
+async function render() {
+  const out = root.querySelector<HTMLElement>('.acc-out')!
+  const inn = root.querySelector<HTMLElement>('.acc-in')!
+  const failed = new URLSearchParams(location.search).get('login') === 'failed'
+  if (failed) history.replaceState(null, '', '/account')
+
+  let me: { loggedIn?: boolean }
+  try {
+    me = await api('/api/me')
+  } catch {
+    showError('acc.error')
+    return
+  }
+  showError(failed ? 'acc.error' : null)
+  out.hidden = !!me.loggedIn
+  inn.hidden = !me.loggedIn
+  if (!me.loggedIn) {
+    if (location.hostname === 'localhost') root.querySelector<HTMLElement>('.dev-login')!.hidden = false
+    else mountWidget(root.querySelector('.tg-login')!)
+    return
+  }
+  const { stickers } = await api<{ stickers: StickerView[] }>('/api/stickers')
+  itemSyncs = []
+  root.querySelector('.sticker-list')!.replaceChildren(...stickers.map(renderItem))
+  root.querySelector<HTMLElement>('.acc-empty')!.hidden = stickers.length > 0
+}
+
+render()
 
 onLangChange(() => {
   translate(root)
+  itemSyncs.forEach((sync) => sync())
+  showError(errorKey)
   const widget = root.querySelector<HTMLElement>('.tg-login')!
   if (!root.querySelector<HTMLElement>('.acc-out')!.hidden && widget.childElementCount) mountWidget(widget)
 })
 
+root.querySelector('.new-sticker')!.addEventListener('submit', async (e) => {
+  e.preventDefault()
+  const form = e.target as HTMLFormElement
+  const data = Object.fromEntries(new FormData(form))
+  try {
+    await api('/api/stickers', 'POST', data)
+    form.reset()
+    showError(null)
+    render()
+  } catch (err) {
+    const code = (err as { code?: string }).code
+    showError(code === 'undeliverable' ? 'acc.undeliverable' : code === 'limit' ? 'acc.limit' : code === 'plate' ? 'err.plate' : 'acc.error')
+  }
+})
 root.querySelector('[data-act="logout"]')!.addEventListener('click', async () => {
-  await api('POST', { action: 'logout' })
-  render(root)
+  await api('/api/me', 'POST', { action: 'logout' })
+  render()
 })
 root.querySelector('[data-act="delete"]')!.addEventListener('click', async () => {
   if (!confirm(t('acc.deleteConfirm'))) return
-  await api('POST', { action: 'delete' })
-  render(root)
+  await api('/api/me', 'POST', { action: 'delete' })
+  render()
 })
 root.querySelector('.dev-login')!.addEventListener('click', async () => {
   await fetch('/api/auth/dev', { method: 'POST' })
-  render(root)
+  render()
 })
