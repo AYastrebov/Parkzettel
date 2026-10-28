@@ -6,7 +6,8 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc --noEmit && vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "screenshots": "node scripts/screenshots.mjs"
   },
   "dependencies": {
     "@fontsource/barlow": "^5.3.0",
@@ -17,6 +18,7 @@
   "devDependencies": {
     "@netlify/functions": "^6.0.3",
     "@types/qrcode": "^1.5.6",
+    "playwright": "^1.64.1",
     "typescript": "^7.0.2",
     "vite": "^8.3.5"
   }
