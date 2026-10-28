@@ -41,7 +41,7 @@ Everything runs in the browser, so there is no account to create and no server t
 - The contact page shows your plate in EU style, with its country code, so the scanner knows they found the right driver.
 - You choose any mix of call, WhatsApp and Telegram. WhatsApp opens with a message that names the plate, written in the scanner's language.
 - Your contact data is AES-GCM encrypted into the link itself and is never stored anywhere.
-- The sticker downloads as a 1200 px PNG or as an SVG you can print at any size. It prints the site's domain under the code, so people can see where it leads before they scan.
+- "Print" gives you a ready-made sheet with two 8 cm stickers and cut lines; on phones, "Share" opens the share sheet. The sticker also downloads as a 1200 px PNG or an SVG, and prints the site's domain under the code so people can see where it leads before they scan.
 - The site speaks German, English and Italian. It picks the browser's language, and the sticker text follows whichever one you select.
 - The contact page is designed for a phone and supports dark mode.
 - The build is about 17 kB of gzipped JavaScript. It makes no external requests, has no tracking, and runs on any static host.

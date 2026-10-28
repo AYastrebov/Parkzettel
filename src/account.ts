@@ -1,6 +1,7 @@
 import { mountChrome } from './chrome'
 import { lang, onLangChange, t, translate, type Key } from './i18n'
 import { COUNTRIES } from './plate'
+import { canShareFiles, printSticker, shareSticker } from './share'
 import { stickerSvg, svgToPngBlob } from './sticker'
 
 const BOT_USERNAME = 'ParkzettelBot'
@@ -49,7 +50,9 @@ const ITEM = `
   </div>
   <input name="note" maxlength="100" data-i18n-ph="f.notePh" data-i18n-label="f.note" />
   <div class="item-actions">
-    <button type="button" class="btn primary" data-act="png" data-i18n="p.png"></button>
+    <button type="button" class="btn primary" data-act="print" data-i18n="p.print"></button>
+    <button type="button" class="btn" data-act="share" hidden data-i18n="p.share"></button>
+    <button type="button" class="btn" data-act="png" data-i18n="p.png"></button>
     <button type="button" class="btn" data-act="svg" data-i18n="p.svg"></button>
     <a class="btn" data-act="open" target="_blank" rel="noopener" data-i18n="p.test"></a>
     <button type="button" class="btn" data-act="toggle"></button>
@@ -109,12 +112,16 @@ let itemSyncs: (() => void)[] = []
 
 const stickerUrl = (id: string) => new URL(`/s/${id}`, location.origin).href
 
+const buildSvg = (s: StickerView) =>
+  stickerSvg(stickerUrl(s.id), { title: t('s.title'), sub: t('s.sub'), domain: location.host }, ['message'], 'H')
+const fileName = (s: StickerView) => `parkzettel-${s.plate.replace(/[^A-Z0-9]+/gi, '-')}`
+
 async function download(s: StickerView, kind: 'png' | 'svg') {
-  const svg = await stickerSvg(stickerUrl(s.id), { title: t('s.title'), sub: t('s.sub'), domain: location.host }, ['message'], 'H')
+  const svg = await buildSvg(s)
   const blob = kind === 'svg' ? new Blob([svg], { type: 'image/svg+xml' }) : await svgToPngBlob(svg)
   const a = document.createElement('a')
   a.href = URL.createObjectURL(blob)
-  a.download = `parkzettel-${s.plate.replace(/[^A-Z0-9]+/gi, '-')}.${kind}`
+  a.download = `${fileName(s)}.${kind}`
   a.click()
   setTimeout(() => URL.revokeObjectURL(a.href), 1000)
 }
@@ -153,6 +160,10 @@ function renderItem(s: StickerView): HTMLLIElement {
     if (el.name === 'plate') el.value = el.value.trim().toUpperCase()
     save({ [el.name]: el.value })
   })
+  li.querySelector('[data-act="print"]')!.addEventListener('click', async () => printSticker(await buildSvg(s)))
+  const share = li.querySelector<HTMLElement>('[data-act="share"]')!
+  share.hidden = !canShareFiles()
+  share.addEventListener('click', async () => shareSticker(await buildSvg(s), `${fileName(s)}.png`))
   li.querySelector('[data-act="png"]')!.addEventListener('click', () => download(s, 'png'))
   li.querySelector('[data-act="svg"]')!.addEventListener('click', () => download(s, 'svg'))
   li.querySelector('[data-act="toggle"]')!.addEventListener('click', () => save({ active: !s.active }))
