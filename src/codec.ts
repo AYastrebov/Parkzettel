@@ -5,6 +5,7 @@
 
 export interface Contact {
   plate: string
+  country?: string // EU plate country code shown under the stars, e.g. 'D'
   call?: string // E.164 phone number for the Call button
   whatsapp?: string // E.164 phone number for WhatsApp
   telegram?: string // username without '@'
@@ -16,6 +17,7 @@ const VERSION = '1'
 // Short keys keep the QR code small. 'w' = '=' means "WhatsApp on the call number".
 interface Packed {
   p: string
+  k?: string
   c?: string
   w?: string
   t?: string
@@ -24,6 +26,7 @@ interface Packed {
 
 function pack(c: Contact): Packed {
   const out: Packed = { p: c.plate }
+  if (c.country) out.k = c.country
   if (c.call) out.c = c.call
   if (c.whatsapp) out.w = c.whatsapp === c.call ? '=' : c.whatsapp
   if (c.telegram) out.t = c.telegram
@@ -33,6 +36,7 @@ function pack(c: Contact): Packed {
 
 export const PHONE_RE = /^\+[1-9]\d{6,14}$/
 export const TELEGRAM_RE = /^[a-zA-Z][a-zA-Z0-9_]{4,31}$/
+export const COUNTRY_RE = /^[A-Z]{1,3}$/
 
 // Tokens can be hand-crafted, so anything that ends up in a link is re-validated here.
 function unpack(x: Packed): Contact {
@@ -40,6 +44,7 @@ function unpack(x: Packed): Contact {
   const str = (v: unknown, re?: RegExp) => (typeof v === 'string' && v && (!re || re.test(v)) ? v : undefined)
   return {
     plate: x.p.slice(0, 16),
+    country: str(x.k, COUNTRY_RE),
     call: str(x.c, PHONE_RE),
     whatsapp: x.w === '=' ? str(x.c, PHONE_RE) : str(x.w, PHONE_RE),
     telegram: str(x.t, TELEGRAM_RE),

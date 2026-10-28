@@ -1,7 +1,8 @@
 const en = {
-  'gen.title': 'A contact sticker for your car',
+  'gen.title': 'The digital note behind your windshield wiper.',
+  'f.country': 'Country code',
   'gen.lead':
-    'Create a QR code for your windshield. Anyone who scans it can reach you via WhatsApp, Telegram or phone. Your number is never printed on the car.',
+    'Type your plate, choose how people can reach you, and print the sticker. Whoever you block in scans it and gets in touch. Your number is never printed on the car.',
   'f.plate': 'License plate',
   'f.phone': 'Phone number',
   'f.phoneHint': 'International format, e.g. +49 170 1234567',
@@ -17,12 +18,11 @@ const en = {
   'err.tg': 'Telegram usernames have 5–32 letters, digits or underscores.',
   'err.channel': 'Choose at least one way to reach you.',
   'p.title': 'Your sticker',
-  'p.empty': 'Fill in the form to see your sticker.',
   'p.png': 'Download PNG',
   'p.svg': 'Download SVG',
   'p.copy': 'Copy link',
   'p.copied': 'Copied!',
-  'p.test': 'Test the page',
+  'p.test': 'Open contact page',
   's.title': 'Blocking you?',
   's.sub': 'Scan to contact the driver',
   'how.title': 'How it works',
@@ -48,9 +48,10 @@ export type Key = keyof typeof en
 type Dict = Record<Key, string>
 
 const de: Dict = {
-  'gen.title': 'Ein Kontakt-Aufkleber für Ihr Auto',
+  'gen.title': 'Der digitale Zettel hinter dem Scheibenwischer.',
+  'f.country': 'Länderkennung',
   'gen.lead':
-    'Erstellen Sie einen QR-Code für Ihre Windschutzscheibe. Wer ihn scannt, erreicht Sie per WhatsApp, Telegram oder Telefon. Ihre Nummer steht dabei nie sichtbar am Auto.',
+    'Kennzeichen eintippen, Kontaktwege wählen, Aufkleber drucken. Wer zugeparkt ist, scannt ihn und meldet sich bei Ihnen. Ihre Nummer steht nie sichtbar am Auto.',
   'f.plate': 'Kennzeichen',
   'f.phone': 'Telefonnummer',
   'f.phoneHint': 'Internationales Format, z. B. +49 170 1234567',
@@ -66,12 +67,11 @@ const de: Dict = {
   'err.tg': 'Telegram-Namen haben 5–32 Buchstaben, Ziffern oder Unterstriche.',
   'err.channel': 'Wählen Sie mindestens einen Kontaktweg.',
   'p.title': 'Ihr Aufkleber',
-  'p.empty': 'Füllen Sie das Formular aus, um Ihren Aufkleber zu sehen.',
   'p.png': 'PNG herunterladen',
   'p.svg': 'SVG herunterladen',
   'p.copy': 'Link kopieren',
   'p.copied': 'Kopiert!',
-  'p.test': 'Seite testen',
+  'p.test': 'Kontaktseite öffnen',
   's.title': 'Zugeparkt?',
   's.sub': 'Scannen und Fahrer kontaktieren',
   'how.title': "So funktioniert's",
@@ -94,9 +94,10 @@ const de: Dict = {
 }
 
 const it: Dict = {
-  'gen.title': "Un adesivo di contatto per la tua auto",
+  'gen.title': 'Il biglietto digitale sotto il tergicristallo.',
+  'f.country': 'Sigla del paese',
   'gen.lead':
-    "Crea un codice QR per il parabrezza. Chi lo scansiona può contattarti via WhatsApp, Telegram o telefono. Il tuo numero non è mai stampato sull'auto.",
+    "Scrivi la targa, scegli come farti contattare e stampa l'adesivo. Chi resta bloccato lo scansiona e ti contatta. Il tuo numero non è mai stampato sull'auto.",
   'f.plate': 'Targa',
   'f.phone': 'Numero di telefono',
   'f.phoneHint': 'Formato internazionale, es. +39 333 1234567',
@@ -112,12 +113,11 @@ const it: Dict = {
   'err.tg': 'Gli username Telegram hanno 5–32 lettere, cifre o trattini bassi.',
   'err.channel': 'Scegli almeno un modo per essere contattato.',
   'p.title': 'Il tuo adesivo',
-  'p.empty': 'Compila il modulo per vedere il tuo adesivo.',
   'p.png': 'Scarica PNG',
   'p.svg': 'Scarica SVG',
   'p.copy': 'Copia link',
   'p.copied': 'Copiato!',
-  'p.test': 'Prova la pagina',
+  'p.test': 'Apri pagina di contatto',
   's.title': 'Ti blocco?',
   's.sub': 'Scansiona e contatta il conducente',
   'how.title': 'Come funziona',
@@ -178,12 +178,15 @@ export function onLangChange(fn: () => void) {
   listeners.add(fn)
 }
 
-// Fills every [data-i18n] / [data-i18n-ph] element under root.
+// Fills every [data-i18n] / [data-i18n-ph] / [data-i18n-label] element under root.
 export function translate(root: ParentNode) {
   root.querySelectorAll<HTMLElement>('[data-i18n]').forEach((el) => {
     el.textContent = t(el.dataset.i18n as Key)
   })
   root.querySelectorAll<HTMLInputElement>('[data-i18n-ph]').forEach((el) => {
     el.placeholder = t(el.dataset.i18nPh as Key)
+  })
+  root.querySelectorAll<HTMLElement>('[data-i18n-label]').forEach((el) => {
+    el.setAttribute('aria-label', t(el.dataset.i18nLabel as Key))
   })
 }

@@ -1,18 +1,14 @@
 import { open, type Contact } from './codec'
 import { onLangChange, t, translate } from './i18n'
 import { icon } from './icons'
-
-const EU_STARS = Array.from({ length: 12 }, (_, i) => {
-  const a = (i / 12) * Math.PI * 2
-  return `<circle cx="${(10 + Math.sin(a) * 6.5).toFixed(2)}" cy="${(10 - Math.cos(a) * 6.5).toFixed(2)}" r="1.1"/>`
-}).join('')
+import { EU_STARS_SVG } from './plate'
 
 const TEMPLATE = `
-<p class="eyebrow" data-i18n="c.eyebrow"></p>
-<div class="plate" role="img">
-  <span class="plate-eu"><svg viewBox="0 0 20 20" fill="#ffcc00" aria-hidden="true">${EU_STARS}</svg></span>
+<h1 class="plate">
+  <span class="visually-hidden" data-i18n="c.eyebrow"></span>
+  <span class="plate-eu" aria-hidden="true">${EU_STARS_SVG}<span class="plate-country"></span></span>
   <span class="plate-num"></span>
-</div>
+</h1>
 <p class="note" hidden></p>
 <div class="contact-actions">
   <a class="big call" data-ch="call" hidden>${icon('call', 28)}<span data-i18n="c.call"></span></a>
@@ -32,7 +28,8 @@ const BAD = `
 function fill(root: HTMLElement, c: Contact) {
   translate(root)
   root.querySelector('.plate-num')!.textContent = c.plate
-  root.querySelector('.plate')!.setAttribute('aria-label', c.plate)
+  root.querySelector('.plate-country')!.textContent = c.country ?? ''
+  document.title = `${c.plate} · Parkzettel`
   const note = root.querySelector<HTMLElement>('.note')!
   note.hidden = !c.note
   note.textContent = c.note ?? ''

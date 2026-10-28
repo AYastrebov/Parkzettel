@@ -35,7 +35,7 @@ the "Test the page" link, and confirm the buttons' `href`s. Do this in at least 
    `src/i18n.ts`, with DE, EN and IT entries. The `Dict` type makes a missing key a build error. Write German
    with formal *Sie*, Italian with informal *tu* (matching the existing strings), and avoid em dashes in copy.
 6. **Sticker SVG must stay self-contained.** `stickerSvg()` output is rasterized via `<img>`, which cannot load
-   web fonts or external resources. Use only inline shapes and system font stacks there.
+   external resources. Use inline shapes only; the font is embedded as a `?inline` data URL.
 
 ## Code style
 
@@ -46,6 +46,9 @@ the "Test the page" link, and confirm the buttons' `href`s. Do this in at least 
 - Comments explain *why*, sparingly. Match the density of the surrounding code.
 - Styling lives in `src/style.css` with CSS custom properties on `:root` and a `prefers-color-scheme: dark`
   override. Keep the contact page usable at 360 px wide.
+- Visual language is German road signage: RAL traffic yellow/black, Barlow Condensed for anything that reads
+  as a sign (plate, headings, buttons), Barlow for body text. EU blue appears only on the plate. Avoid generic
+  card layouts, all-caps eyebrow labels and decorative motion.
 
 ## Project layout
 
@@ -57,6 +60,7 @@ src/codec.ts       payload packing + AES-GCM seal/open (token format lives here)
 src/sticker.ts     sticker SVG and PNG export
 src/i18n.ts        DE / EN / IT dictionaries, language detection
 src/icons.ts       Lucide-derived icon paths (ISC)
+src/plate.ts       EU plate stars and country codes
 docs/              README screenshots
 .github/workflows/deploy.yml   GitHub Pages deploy
 netlify.toml       Netlify build + headers
