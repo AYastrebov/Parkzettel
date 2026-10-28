@@ -1,23 +1,30 @@
 import QRCode from 'qrcode'
+import fontUrl from '@fontsource/barlow-condensed/files/barlow-condensed-latin-700-normal.woff2?inline'
 import { ICONS, type IconName } from './icons'
 
 const W = 400
-const H = 510
-const FONT = "'Arial Narrow', 'Helvetica Neue', Arial, sans-serif"
+const H = 530
+// The font is embedded as a data URL: an SVG rendered through <img> (PNG export) cannot fetch anything.
+const FONT = "'Sticker', 'Arial Narrow', Arial, sans-serif"
+const FONT_FACE = `<style>@font-face{font-family:'Sticker';font-weight:700;src:url(${fontUrl}) format('woff2')}</style>`
 
 const esc = (s: string) =>
   s.replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]!)
 
-const CHANNEL_COLORS: Record<IconName, string> = { call: '#111111', whatsapp: '#1faa53', telegram: '#229ed9' }
+// RAL 1023 traffic yellow and RAL 9017 traffic black.
+const YELLOW = '#f7ba0b'
+const BLACK = '#1e1e1e'
+const CHANNEL_COLORS: Record<IconName, string> = { call: BLACK, whatsapp: '#1faa53', telegram: '#229ed9' }
 
 export interface StickerText {
   title: string
   sub: string
+  domain: string // printed under the code so people can see where it leads before scanning
 }
 
 // Self-contained SVG (no external fonts or images) so it can be printed as is or rasterized to PNG.
 export async function stickerSvg(url: string, text: StickerText, channels: IconName[]): Promise<string> {
-  const qr = await QRCode.toString(url, { errorCorrectionLevel: 'M', margin: 0, color: { dark: '#111111', light: '#ffffff' } })
+  const qr = await QRCode.toString(url, { errorCorrectionLevel: 'M', margin: 0, color: { dark: BLACK, light: '#ffffff' } })
   const qrSize = 290
   const qrX = (W - qrSize) / 2
   const qrY = 128
@@ -33,12 +40,14 @@ export async function stickerSvg(url: string, text: StickerText, channels: IconN
     .join('')
 
   return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${W} ${H}" width="${W}" height="${H}">
-<rect x="4" y="4" width="${W - 8}" height="${H - 8}" rx="28" fill="#ffffff" stroke="#111111" stroke-width="8"/>
-<path d="M4 32a28 28 0 0 1 28-28h${W - 64}a28 28 0 0 1 28 28v76H4z" fill="#ffcc00" stroke="#111111" stroke-width="8"/>
-<text x="${W / 2}" y="66" text-anchor="middle" font-family="${FONT}" font-weight="800" font-size="40" fill="#111111">${esc(text.title)}</text>
-<text x="${W / 2}" y="94" text-anchor="middle" font-family="${FONT}" font-weight="600" font-size="19" fill="#111111">${esc(text.sub)}</text>
+${FONT_FACE}
+<rect x="4" y="4" width="${W - 8}" height="${H - 8}" rx="28" fill="#ffffff" stroke="${BLACK}" stroke-width="8"/>
+<path d="M4 32a28 28 0 0 1 28-28h${W - 64}a28 28 0 0 1 28 28v76H4z" fill="${YELLOW}" stroke="${BLACK}" stroke-width="8"/>
+<text x="${W / 2}" y="66" text-anchor="middle" font-family="${FONT}" font-weight="700" font-size="46" fill="${BLACK}">${esc(text.title)}</text>
+<text x="${W / 2}" y="94" text-anchor="middle" font-family="${FONT}" font-weight="700" font-size="22" fill="${BLACK}">${esc(text.sub)}</text>
 ${qrInner}
 ${badges}
+<text x="${W / 2}" y="508" text-anchor="middle" font-family="${FONT}" font-weight="700" font-size="16" letter-spacing="0.5" fill="#6b6b6b">${esc(text.domain)}</text>
 </svg>`
 }
 

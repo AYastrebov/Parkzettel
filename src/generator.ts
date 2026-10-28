@@ -1,50 +1,60 @@
 import { PHONE_RE, seal, TELEGRAM_RE, type Contact } from './codec'
-import { onLangChange, t, translate, type Key } from './i18n'
+import { lang, onLangChange, t, translate, type Key } from './i18n'
 import type { IconName } from './icons'
+import { COUNTRIES, EU_STARS_SVG } from './plate'
 import { stickerSvg, svgToPngBlob } from './sticker'
 
+// The plate sits outside the <form> in the hero; form="gen" still makes it a form control.
 const TEMPLATE = `
-<section class="intro">
+<div class="bench">
+<section class="hero">
   <h1 data-i18n="gen.title"></h1>
+  <div class="plate plate-edit">
+    <label class="plate-eu">
+      ${EU_STARS_SVG}
+      <select name="country" form="gen" data-i18n-label="f.country">
+        <option value="">–</option>
+        ${COUNTRIES.map((c) => `<option>${c}</option>`).join('')}
+      </select>
+    </label>
+    <input name="plate" form="gen" class="plate-num" autocomplete="off" autocapitalize="characters"
+      spellcheck="false" maxlength="16" placeholder="M-AB 1234" data-i18n-label="f.plate" />
+  </div>
   <p class="lead" data-i18n="gen.lead"></p>
 </section>
-<div class="gen-grid">
-  <form class="card form" novalidate>
-    <label class="field">
-      <span data-i18n="f.plate"></span>
-      <input name="plate" class="plate-input" autocomplete="off" autocapitalize="characters" maxlength="16" placeholder="M-AB 1234" required />
-    </label>
-    <label class="field">
-      <span data-i18n="f.phone"></span>
-      <input name="phone" type="tel" inputmode="tel" autocomplete="tel" maxlength="24" placeholder="+49 170 1234567" />
-      <small data-i18n="f.phoneHint"></small>
-    </label>
-    <fieldset class="field">
-      <legend data-i18n="f.channels"></legend>
+<aside class="preview">
+  <div class="sticker draft" aria-live="polite"></div>
+  <div class="actions">
+    <button type="button" class="btn primary" data-act="png" disabled data-i18n="p.png"></button>
+    <button type="button" class="btn" data-act="svg" disabled data-i18n="p.svg"></button>
+    <button type="button" class="btn" data-act="copy" disabled data-i18n="p.copy"></button>
+    <a class="btn" data-act="test" target="_blank" rel="noopener" aria-disabled="true" data-i18n="p.test"></a>
+  </div>
+</aside>
+<form id="gen" class="form" novalidate>
+  <label class="field">
+    <span data-i18n="f.phone"></span>
+    <input name="phone" type="tel" inputmode="tel" autocomplete="tel" maxlength="24" placeholder="+49 170 1234567" />
+    <small data-i18n="f.phoneHint"></small>
+  </label>
+  <fieldset class="field">
+    <legend data-i18n="f.channels"></legend>
+    <div class="checks">
       <label class="check"><input type="checkbox" name="call" checked /><span data-i18n="f.call"></span></label>
       <label class="check"><input type="checkbox" name="wa" checked /><span data-i18n="f.wa"></span></label>
-      <input name="waPhone" type="tel" inputmode="tel" maxlength="24" class="sub-input" data-i18n-ph="f.waOther" />
-    </fieldset>
-    <label class="field">
-      <span data-i18n="f.tg"></span>
-      <div class="prefixed"><span>@</span><input name="telegram" autocomplete="off" autocapitalize="none" spellcheck="false" maxlength="33" /></div>
-    </label>
-    <label class="field">
-      <span data-i18n="f.note"></span>
-      <textarea name="note" rows="2" maxlength="100" data-i18n-ph="f.notePh"></textarea>
-    </label>
-    <p class="error" role="alert" hidden></p>
-  </form>
-  <aside class="card preview">
-    <h2 data-i18n="p.title"></h2>
-    <div class="sticker" aria-live="polite"><p class="empty" data-i18n="p.empty"></p></div>
-    <div class="actions">
-      <button type="button" class="btn primary" data-act="png" disabled data-i18n="p.png"></button>
-      <button type="button" class="btn" data-act="svg" disabled data-i18n="p.svg"></button>
-      <button type="button" class="btn" data-act="copy" disabled data-i18n="p.copy"></button>
-      <a class="btn" data-act="test" target="_blank" rel="noopener" aria-disabled="true" data-i18n="p.test"></a>
     </div>
-  </aside>
+    <input name="waPhone" type="tel" inputmode="tel" maxlength="24" class="sub-input" data-i18n-ph="f.waOther" />
+  </fieldset>
+  <label class="field">
+    <span data-i18n="f.tg"></span>
+    <div class="prefixed"><span>@</span><input name="telegram" autocomplete="off" autocapitalize="none" spellcheck="false" maxlength="33" /></div>
+  </label>
+  <label class="field">
+    <span data-i18n="f.note"></span>
+    <textarea name="note" rows="2" maxlength="100" data-i18n-ph="f.notePh"></textarea>
+  </label>
+  <p class="error" role="alert" hidden></p>
+</form>
 </div>
 <section class="info">
   <div>
@@ -82,8 +92,8 @@ function readForm(form: HTMLFormElement): Result {
   const telegram = normalizeTelegram(v('telegram'))
   const note = v('note').trim()
 
-  const untouched = !plate && !v('phone') && !v('telegram')
-  if (untouched) return { ok: false, error: null }
+  // Nothing to complain about until the user has typed a way to reach them.
+  if (!v('phone') && !v('telegram') && !v('waPhone')) return { ok: false, error: null }
   if (!plate) return { ok: false, error: 'err.plate' }
   if (phone === null || waPhone === null) return { ok: false, error: 'err.phone' }
   if (telegram === null) return { ok: false, error: 'err.tg' }
@@ -92,7 +102,8 @@ function readForm(form: HTMLFormElement): Result {
   const whatsapp = checked('wa') ? waPhone || phone || undefined : undefined
   if ((checked('call') || (checked('wa') && !waPhone)) && !phone) return { ok: false, error: 'err.phone' }
   if (!call && !whatsapp && !telegram) return { ok: false, error: 'err.channel' }
-  return { ok: true, contact: { plate, call, whatsapp, telegram: telegram || undefined, note: note || undefined } }
+  const country = v('country') || undefined
+  return { ok: true, contact: { plate, country, call, whatsapp, telegram: telegram || undefined, note: note || undefined } }
 }
 
 function download(blob: Blob, name: string) {
@@ -103,6 +114,8 @@ function download(blob: Blob, name: string) {
   setTimeout(() => URL.revokeObjectURL(a.href), 1000)
 }
 
+const DEFAULT_COUNTRY: Record<string, string> = { de: 'D', it: 'I' }
+
 export function renderGenerator(root: HTMLElement) {
   root.innerHTML = TEMPLATE
   root.className = 'view-gen'
@@ -111,9 +124,10 @@ export function renderGenerator(root: HTMLElement) {
   const form = root.querySelector('form')!
   const errorEl = root.querySelector<HTMLElement>('.error')!
   const stickerEl = root.querySelector<HTMLElement>('.sticker')!
-  const waPhoneEl = form.elements.namedItem('waPhone') as HTMLInputElement
+  const field = <T extends Element = HTMLInputElement>(n: string) => form.elements.namedItem(n) as unknown as T
   const btn = (act: string) => root.querySelector<HTMLButtonElement>(`[data-act="${act}"]`)!
   const testLink = root.querySelector<HTMLAnchorElement>('[data-act="test"]')!
+  field<HTMLSelectElement>('country').value = DEFAULT_COUNTRY[lang()] ?? ''
 
   let current: { url: string; svg: string; plate: string } | null = null
   let error: Key | null = null
@@ -134,38 +148,42 @@ export function renderGenerator(root: HTMLElement) {
   async function update() {
     const mine = ++seq
     const res = readForm(form)
-    waPhoneEl.hidden = !(form.elements.namedItem('wa') as HTMLInputElement).checked
+    field('waPhone').hidden = !field('wa').checked
     error = res.ok ? null : res.error
     showError()
-    if (!res.ok) {
-      current = null
-      stickerEl.innerHTML = `<p class="empty">${t('p.empty')}</p>`
-      setReady(false)
-      return
-    }
-    const token = await seal(res.contact)
-    const url = new URL('#' + token, location.href.split('#')[0]).href
+
+    // Until the form is complete, show a faded draft that already follows the chosen channels.
+    let url = location.href.split('#')[0]
     const channels: IconName[] = []
-    if (res.contact.call) channels.push('call')
-    if (res.contact.whatsapp) channels.push('whatsapp')
-    if (res.contact.telegram) channels.push('telegram')
-    const svg = await stickerSvg(url, { title: t('s.title'), sub: t('s.sub') }, channels)
+    if (res.ok) {
+      url = new URL('#' + (await seal(res.contact)), url).href
+      if (res.contact.call) channels.push('call')
+      if (res.contact.whatsapp) channels.push('whatsapp')
+      if (res.contact.telegram) channels.push('telegram')
+    } else {
+      if (field('call').checked) channels.push('call')
+      if (field('wa').checked) channels.push('whatsapp')
+      if (field('telegram').value) channels.push('telegram')
+    }
+    const svg = await stickerSvg(url, { title: t('s.title'), sub: t('s.sub'), domain: location.host }, channels)
     if (mine !== seq) return // a newer edit superseded this one
-    current = { url, svg, plate: res.contact.plate }
+    current = res.ok ? { url, svg, plate: res.contact.plate } : null
     stickerEl.innerHTML = svg
-    setReady(true)
+    stickerEl.classList.toggle('draft', !res.ok)
+    setReady(res.ok)
   }
 
   // The '@' is already shown as a prefix; drop it when typed or pasted.
-  const tgEl = form.elements.namedItem('telegram') as HTMLInputElement
+  const tgEl = field('telegram')
   tgEl.addEventListener('input', () => {
     if (tgEl.value.startsWith('@')) tgEl.value = tgEl.value.slice(1)
   })
 
+  // Listen on root: the plate inputs live outside the <form> element, so their events don't reach it.
   let timer = 0
-  form.addEventListener('input', () => {
+  root.addEventListener('input', () => {
     clearTimeout(timer)
-    timer = window.setTimeout(update, 200)
+    timer = window.setTimeout(update, 150)
   })
   form.addEventListener('submit', (e) => e.preventDefault())
   onLangChange(() => {
