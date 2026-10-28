@@ -24,6 +24,11 @@ export async function verifyLogin(params: URLSearchParams, botToken = secret('TE
 }
 
 export async function botApi(method: string, body: Record<string, unknown>): Promise<unknown> {
+  // Local development: log instead of calling Telegram (set TELEGRAM_DRY_RUN=1 for netlify dev).
+  if (Netlify.env.get('TELEGRAM_DRY_RUN') === '1') {
+    console.log(`[telegram dry run] ${method}`, JSON.stringify(body))
+    return { message_id: 1 }
+  }
   const res = await fetch(`https://api.telegram.org/bot${secret('TELEGRAM_BOT_TOKEN')}/${method}`, {
     method: 'POST',
     headers: { 'content-type': 'application/json' },

@@ -21,3 +21,9 @@
   from = "/account"
   to = "/account.html"
   status = 200
+
+# Relay stickers: the QR code holds /s/<id>; the public app renders it.
+[[redirects]]
+  from = "/s/*"
+  to = "/index.html"
+  status = 200

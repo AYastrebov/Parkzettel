@@ -15,7 +15,12 @@ export default async (req: Request, context: Context) => {
 
   if (!sameOrigin(req)) return json({ error: 'forbidden' }, 403)
   const { action } = (await req.json().catch(() => ({}))) as { action?: string }
-  if (action === 'delete' && uid) await owners.delete(String(uid))
+  if (action === 'delete' && uid) {
+    // Deleting the account also deletes its stickers; their QR codes then show "not found".
+    const stickers = store(context, 'stickers')
+    await Promise.all((owner?.stickers ?? []).map((id) => stickers.delete(id)))
+    await owners.delete(String(uid))
+  }
   if (action === 'logout' || action === 'delete') {
     clearSession(context)
     return json({ ok: true })

@@ -21,6 +21,7 @@ const TEMPLATE = `
       spellcheck="false" maxlength="16" placeholder="M-AB 1234" data-i18n-label="f.plate" />
   </div>
   <p class="lead" data-i18n="gen.lead"></p>
+  <p class="relay-hint"><a href="/account" data-i18n="gen.relay"></a></p>
 </section>
 <aside class="preview">
   <div class="sticker draft" aria-live="polite"></div>
