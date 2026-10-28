@@ -32,7 +32,7 @@ const en = {
   'how.3': 'Stick it inside the windshield. Scanning opens a page with contact buttons.',
   'priv.title': 'Privacy',
   'priv.body':
-    'Nothing is stored anywhere. There is no server and no database. Your details are encrypted into the QR code itself and decrypted only in the browser of whoever opens it. That keeps them out of plain sight, but anyone with the link or a photo of the sticker can see the contact options you chose. If you would rather keep your number private, use Telegram only or a second number. To change your details, create a new sticker.',
+    'A private sticker stores nothing on any server. Your details are encrypted into the QR code itself and decrypted only in the browser of whoever opens it. That keeps them out of plain sight, but anyone with the link or a photo of the sticker can see the contact options you chose. If you would rather keep your number private, use Telegram only or a second number. To change your details, create a new sticker.',
   'c.eyebrow': 'Contact the driver of',
   'c.call': 'Call',
   'c.wa': 'WhatsApp',
@@ -43,7 +43,18 @@ const en = {
   'c.create': 'Create your own sticker',
   'bad.title': 'This code cannot be read',
   'bad.body': 'The link seems incomplete or damaged. Try scanning the QR code again.',
-  'foot': 'No accounts, no tracking, no stored data.',
+  'nav.account': 'Relay stickers & login',
+  'acc.title': 'Relay stickers',
+  'acc.lead':
+    'A relay sticker keeps your phone number private: people message you through the Parkzettel Telegram bot instead of calling you. Log in with Telegram to manage your relay stickers.',
+  'acc.stored': 'We keep only your numeric Telegram ID. Your name, username and photo are discarded, and the login cookie is used for nothing else.',
+  'acc.in': 'You are logged in with Telegram.',
+  'acc.soon': 'Creating relay stickers is coming next.',
+  'acc.logout': 'Log out',
+  'acc.delete': 'Delete my account',
+  'acc.deleteConfirm': 'Delete your account and everything stored for it?',
+  'acc.error': 'Login did not work. Please try again.',
+  'foot': 'Private stickers need no account and store nothing.',
 }
 
 export type Key = keyof typeof en
@@ -83,7 +94,7 @@ const de: Dict = {
   'how.3': 'Innen an die Windschutzscheibe kleben. Beim Scannen öffnet sich eine Seite mit Kontakt-Buttons.',
   'priv.title': 'Datenschutz',
   'priv.body':
-    'Es wird nichts gespeichert. Es gibt keinen Server und keine Datenbank. Ihre Daten werden verschlüsselt im QR-Code selbst abgelegt und erst im Browser der Person entschlüsselt, die ihn öffnet. So stehen sie nicht im Klartext da, aber wer den Link oder ein Foto des Aufklebers hat, sieht die von Ihnen gewählten Kontaktwege. Wenn Ihre Nummer privat bleiben soll, nutzen Sie nur Telegram oder eine Zweitnummer. Für neue Daten erstellen Sie einfach einen neuen Aufkleber.',
+    'Ein privater Aufkleber speichert nichts auf einem Server. Ihre Daten werden verschlüsselt im QR-Code selbst abgelegt und erst im Browser der Person entschlüsselt, die ihn öffnet. So stehen sie nicht im Klartext da, aber wer den Link oder ein Foto des Aufklebers hat, sieht die von Ihnen gewählten Kontaktwege. Wenn Ihre Nummer privat bleiben soll, nutzen Sie nur Telegram oder eine Zweitnummer. Für neue Daten erstellen Sie einfach einen neuen Aufkleber.',
   'c.eyebrow': 'Fahrer kontaktieren von',
   'c.call': 'Anrufen',
   'c.wa': 'WhatsApp',
@@ -94,7 +105,18 @@ const de: Dict = {
   'c.create': 'Eigenen Aufkleber erstellen',
   'bad.title': 'Dieser Code ist nicht lesbar',
   'bad.body': 'Der Link scheint unvollständig oder beschädigt zu sein. Bitte scannen Sie den QR-Code erneut.',
-  'foot': 'Keine Konten, kein Tracking, keine gespeicherten Daten.',
+  'nav.account': 'Relay-Aufkleber & Login',
+  'acc.title': 'Relay-Aufkleber',
+  'acc.lead':
+    'Ein Relay-Aufkleber hält Ihre Telefonnummer privat: Man schreibt Ihnen über den Parkzettel-Bot in Telegram, statt Sie anzurufen. Melden Sie sich mit Telegram an, um Ihre Relay-Aufkleber zu verwalten.',
+  'acc.stored': 'Wir speichern nur Ihre numerische Telegram-ID. Name, Benutzername und Foto werden verworfen, und das Login-Cookie dient nur der Anmeldung.',
+  'acc.in': 'Sie sind mit Telegram angemeldet.',
+  'acc.soon': 'Relay-Aufkleber erstellen kommt als Nächstes.',
+  'acc.logout': 'Abmelden',
+  'acc.delete': 'Mein Konto löschen',
+  'acc.deleteConfirm': 'Ihr Konto und alle dazu gespeicherten Daten löschen?',
+  'acc.error': 'Die Anmeldung hat nicht funktioniert. Bitte versuchen Sie es erneut.',
+  'foot': 'Private Aufkleber brauchen kein Konto und speichern nichts.',
 }
 
 const it: Dict = {
@@ -131,7 +153,7 @@ const it: Dict = {
   'how.3': "Attaccalo all'interno del parabrezza. La scansione apre una pagina con i pulsanti di contatto.",
   'priv.title': 'Privacy',
   'priv.body':
-    "Non viene salvato nulla. Non c'è nessun server né database. I tuoi dati sono cifrati nel codice QR stesso e decifrati solo nel browser di chi lo apre. Così non sono leggibili a colpo d'occhio, ma chiunque abbia il link o una foto dell'adesivo vede i contatti che hai scelto. Se vuoi tenere privato il tuo numero, usa solo Telegram o un secondo numero. Per cambiare i dati, crea un nuovo adesivo.",
+    "Un adesivo privato non salva nulla su nessun server. I tuoi dati sono cifrati nel codice QR stesso e decifrati solo nel browser di chi lo apre. Così non sono leggibili a colpo d'occhio, ma chiunque abbia il link o una foto dell'adesivo vede i contatti che hai scelto. Se vuoi tenere privato il tuo numero, usa solo Telegram o un secondo numero. Per cambiare i dati, crea un nuovo adesivo.",
   'c.eyebrow': 'Contatta il conducente di',
   'c.call': 'Chiama',
   'c.wa': 'WhatsApp',
@@ -142,7 +164,18 @@ const it: Dict = {
   'c.create': 'Crea il tuo adesivo',
   'bad.title': 'Questo codice non è leggibile',
   'bad.body': 'Il link sembra incompleto o danneggiato. Prova a scansionare di nuovo il codice QR.',
-  'foot': 'Nessun account, nessun tracciamento, nessun dato salvato.',
+  'nav.account': 'Adesivi relay e accesso',
+  'acc.title': 'Adesivi relay',
+  'acc.lead':
+    'Un adesivo relay tiene privato il tuo numero di telefono: ti scrivono tramite il bot Telegram di Parkzettel invece di chiamarti. Accedi con Telegram per gestire i tuoi adesivi relay.',
+  'acc.stored': "Conserviamo solo il tuo ID numerico di Telegram. Nome, username e foto vengono scartati, e il cookie di accesso serve solo per l'accesso.",
+  'acc.in': "Hai effettuato l'accesso con Telegram.",
+  'acc.soon': 'La creazione degli adesivi relay arriva a breve.',
+  'acc.logout': 'Esci',
+  'acc.delete': 'Elimina il mio account',
+  'acc.deleteConfirm': 'Eliminare il tuo account e tutti i dati salvati?',
+  'acc.error': "L'accesso non è riuscito. Riprova.",
+  'foot': 'Gli adesivi privati non richiedono account e non salvano nulla.',
 }
 
 export const LANGS = { de, en, it } as const

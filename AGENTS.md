@@ -11,7 +11,10 @@ There is no backend. Contact data lives only in the encrypted token inside the Q
 ## Commands
 
 - Install: `npm install`
-- Dev server: `npm run dev` (http://localhost:5173)
+- Dev server: `npm run dev` (http://localhost:5173), frontend only
+- With functions: `npx netlify-cli dev` (http://localhost:8888). Set `SESSION_SECRET`, `TELEGRAM_BOT_TOKEN`
+  and `TELEGRAM_WEBHOOK_SECRET` to dummy values in the shell. The account page shows a "Dev login" button on
+  localhost, because Telegram's widget only works on the registered domain.
 - Type-check and build: `npm run build`. Run it after every change; it must pass with zero errors.
 - Preview the production build: `npm run preview`
 
@@ -24,10 +27,15 @@ the "Test the page" link, and confirm the buttons' `href`s. Do this in at least 
    cannot be updated. `open()` must keep decoding every token version that was ever released. To change
    the format, add a new version prefix (`'2'`, …) and keep the old decoder. Never change the meaning of
    the short payload keys (`p`, `c`, `w`, `t`, `n`, and `w: '='`).
-2. **No server-side data.** Do not add a backend, database, analytics, error reporting, or anything that
-   sends contact data off the device. Contact data must stay in the URL fragment.
-3. **No external requests at runtime.** No CDNs, Google Fonts, or remote images. Bundle fonts through
-   `@fontsource/*`. This is a privacy promise (and a GDPR concern in Germany).
+2. **Private stickers never touch the server.** The `#token` flow (generator → contact page) must keep working
+   with no backend call and send nothing off the device. Server code (`netlify/functions/`) exists only for the
+   opt-in relay stickers and Telegram login. It stores the minimum: numeric Telegram IDs, never names, usernames,
+   phone numbers or raw IPs. Use `store()` from `netlify/lib/stores.ts`, which keeps non-production deploys out
+   of production data. No analytics or error reporting services.
+3. **No external requests at runtime,** with one exception: the account page (`account.html`) loads Telegram's
+   login widget. Scanner and generator pages load nothing from third parties: no CDNs, Google Fonts or remote
+   images. Bundle fonts through `@fontsource/*`. Each HTML page sets its own CSP in a `<meta>` tag; keep the
+   one in `index.html` strict, and only widen `account.html` for Telegram.
 4. **Treat decoded data as untrusted.** Anyone can craft a token. Insert user values with `textContent`
    or `esc()` in `src/sticker.ts`, never by building `innerHTML` from them. Build links only from validated
    values: E.164 phone numbers and Telegram usernames matching `^[a-zA-Z][a-zA-Z0-9_]{4,31}$`.
@@ -53,7 +61,11 @@ the "Test the page" link, and confirm the buttons' `href`s. Do this in at least 
 ## Project layout
 
 ```
-src/main.ts        app shell, language switcher, routing
+src/chrome.ts      shared header, language switcher, footer
+src/main.ts        public app entry: routing (#token → contact page)
+src/account.ts     owner account page (Telegram login)
+netlify/functions/ API: Telegram login, session, webhook, webhook setup
+netlify/lib/       server helpers: crypto, session cookie, Blobs stores, Telegram API
 src/generator.ts   create mode: form, validation, preview, downloads
 src/contact.ts     scan mode
 src/codec.ts       payload packing + AES-GCM seal/open (token format lives here)
@@ -71,7 +83,10 @@ netlify.toml       Netlify build + headers (production: parkzettel.netlify.app)
   page fails to decrypt and shows the error view.
 - The QR encodes the full URL of the page the generator runs on, so stickers made on `localhost` only work
   on that machine.
-- `vite.config.ts` uses `base: './'` so the build works from any sub-path. Keep asset paths relative.
+- Vite builds two pages (`index.html`, `account.html`); `/account` is routed to `account.html` in `netlify.toml`.
+- Secrets (`TELEGRAM_BOT_TOKEN`, `TELEGRAM_WEBHOOK_SECRET`, `SESSION_SECRET`) live only in Netlify environment
+  variables scoped to Functions. Never expose them to the Vite build (`import.meta.env`).
+- The Telegram webhook is registered by `POST /api/telegram/setup` on production; rerun it if the URL changes.
 - Token length drives QR density. Don't add payload fields or long defaults without a good reason.
 
 ## Commits and PRs

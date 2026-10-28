@@ -85,6 +85,16 @@ The site is a set of static files, and all the work happens in the browser. The 
 > [!TIP]
 > If your number changes, create a new sticker. Without a database, there is nothing to update.
 
+## Relay stickers (in progress)
+
+Private stickers are the default and need no account. Relay stickers are an opt-in alternative: the QR code holds a
+short ID, and scanners message the owner through [@ParkzettelBot](https://t.me/ParkzettelBot) on Telegram, so neither
+side sees the other's phone number. Owners log in at `/account` with Telegram.
+
+The backend is a few Netlify Functions (`netlify/functions/`) with Netlify Blobs for storage. It keeps only the owner's
+numeric Telegram ID; the name, username and photo from the Telegram login are discarded. Telegram's login script
+loads only on the account page, never on the pages scanners see.
+
 ## Languages
 
 | | Sticker headline | Contact page |
@@ -123,7 +133,9 @@ Any other static host works too: run `npm run build` and serve `dist/`.
 
 ```
 src/
-├── main.ts        # app shell, language switcher, routing (#token → contact page)
+├── chrome.ts      # shared header, language switcher, footer
+├── main.ts        # public app entry, routing (#token → contact page)
+├── account.ts     # owner account page (Telegram login)
 ├── generator.ts   # create mode: form, validation, preview, downloads
 ├── contact.ts     # scan mode: plate + contact buttons
 ├── codec.ts       # compact payload + AES-GCM seal/open
@@ -132,6 +144,9 @@ src/
 ├── icons.ts       # call / WhatsApp / Telegram glyphs (Lucide, ISC)
 ├── plate.ts       # EU plate stars and country codes
 └── style.css
+netlify/
+├── functions/     # API: Telegram login, session, bot webhook
+└── lib/           # crypto, session cookie, Blobs stores, Telegram API
 ```
 
 AI coding agents: see [`AGENTS.md`](AGENTS.md).
