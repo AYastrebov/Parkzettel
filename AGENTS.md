@@ -18,7 +18,7 @@ There is no backend. Contact data lives only in the encrypted token inside the Q
 - Dev server: `npm run dev` (http://localhost:5173), frontend only
 - With functions: `npx netlify-cli dev` (http://localhost:8888). Set `SESSION_SECRET`, `TELEGRAM_BOT_TOKEN`
   and `TELEGRAM_WEBHOOK_SECRET` to dummy values in the shell. The account page shows a "Dev login" button on
-  localhost, because Telegram's widget only works on the registered domain. Add `TELEGRAM_DRY_RUN=1` to log
+  localhost, because Telegram's login only works on the registered domain. Add `TELEGRAM_DRY_RUN=1` to log
   bot calls instead of sending them.
 - Type-check and build: `npm run build`. Run it after every change; it must pass with zero errors.
 - Preview the production build: `npm run preview`
@@ -40,7 +40,7 @@ the "Test the page" link, and confirm the buttons' `href`s. Do this in at least 
    Monitoring script (performance timings, no cookies, no URL) and the two HTML `<meta>` CSPs allow its collector
    in `connect-src`; keep it that way unless the owner turns RUM off in Netlify.
 3. **No external requests at runtime,** with one exception: the account page (`account.html`) loads Telegram's
-   login widget. Scanner and generator pages load nothing from third parties: no CDNs, Google Fonts or remote
+   login script (it opens a popup; the result is POSTed to our API). Scanner and generator pages load nothing from third parties: no CDNs, Google Fonts or remote
    images. Bundle fonts through `@fontsource/*`. Each HTML page sets its own CSP in a `<meta>` tag; keep the
    one in `index.html` strict, and only widen `account.html` for Telegram.
 4. **Treat decoded data as untrusted.** Anyone can craft a token. Insert user values with `textContent`
@@ -127,6 +127,9 @@ netlify.toml       Netlify build + headers (production: parkzettel.fyi)
 - The printed sticker text has its own language, separate from the UI: `stickerLangFor()` in `src/sticker.ts`
   derives it from the plate country until the owner picks one, and it is never saved or encoded in the token. It
   is limited to DE/EN/IT because the embedded sticker font covers basic Latin only (no Polish, Turkish or Cyrillic).
+- The relay rate limiter (`netlify/lib/ratelimit.ts`) uses conditional Blobs writes (ETags). The local Blobs
+  server in `netlify dev` returns no ETag on reads, so writes are unconditional there; only a deploy shows the
+  limiter refusing parallel requests.
 - Token length drives QR density. Don't add payload fields or long defaults without a good reason.
 
 ## Commits and PRs
