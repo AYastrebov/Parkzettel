@@ -6,7 +6,7 @@
 
 export interface Contact {
   plate: string
-  country?: string // EU plate country code shown under the stars, e.g. 'D'
+  country?: string // plate country code, e.g. 'D' (EU, under the stars) or 'CH' (non-EU, in an oval)
   call?: string // E.164 phone number for the Call button
   whatsapp?: string // E.164 phone number for WhatsApp
   telegram?: string // username without '@'

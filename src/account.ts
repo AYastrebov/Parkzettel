@@ -2,7 +2,7 @@ import { mountChrome } from './chrome'
 import { lang, onLangChange, t, translate, type FullLang, type Key } from './i18n'
 import { COUNTRY_OPTIONS, isNonEu } from './plate'
 import { canShareFiles, printSticker, shareSticker } from './share'
-import { STICKER_LANG_OPTIONS, stickerLangFor, stickerSvg, stickerText, svgToPngBlob } from './sticker'
+import { followCountry, STICKER_LANG_OPTIONS, stickerSvg, stickerText, svgToPngBlob } from './sticker'
 
 const BOT_USERNAME = 'ParkzettelBot'
 
@@ -106,6 +106,9 @@ function showError(key: Key | null) {
   errorEl.textContent = key ? t(key) : ''
 }
 
+// Sticker languages the owner picked, by sticker id; render() rebuilds the items, so they live here.
+const pickedLangs = new Map<string, FullLang>()
+
 // Per-item language refreshers; replaced on every render so detached items don't pile up.
 let itemSyncs: (() => void)[] = []
 
@@ -133,14 +136,12 @@ function renderItem(s: StickerView): HTMLLIElement {
   field('plate').value = s.plate
   field('note').value = s.note ?? ''
   li.querySelector<HTMLAnchorElement>('[data-act="open"]')!.href = stickerUrl(s.id)
-  // Not saved: it only affects the next print or download. Follows the plate country until picked.
-  const langSel = field<HTMLSelectElement>('stickerLang')
-  let langPicked = false
-  const stickerLang = () => langSel.value as FullLang
+  // Not saved to the server: it only affects the next print or download.
+  const stickerLang = followCountry(field<HTMLSelectElement>('stickerLang'), () => s.country, pickedLangs.get(s.id))
 
   const sync = () => {
     translate(li)
-    if (!langPicked) langSel.value = stickerLangFor(s.country, lang())
+    stickerLang()
     field('country').classList.toggle('non-eu', isNonEu(s.country))
     li.classList.toggle('off', !s.active)
     li.querySelector('.badge')!.textContent = t(s.active ? 'acc.active' : 'acc.inactive')
@@ -162,9 +163,10 @@ function renderItem(s: StickerView): HTMLLIElement {
   li.addEventListener('change', (e) => {
     const el = e.target as HTMLInputElement
     if (el.name === 'stickerLang') {
-      langPicked = true
+      pickedLangs.set(s.id, el.value as FullLang)
       return
     }
+    if (el.name === 'country') el.classList.toggle('non-eu', isNonEu(el.value))
     if (el.name === 'plate') el.value = el.value.trim().toUpperCase()
     save({ [el.name]: el.value })
   })
@@ -229,7 +231,6 @@ root.querySelector('.new-sticker')!.addEventListener('submit', async (e) => {
   try {
     await api('/api/stickers', 'POST', data)
     form.reset()
-    newCountry.classList.remove('non-eu')
     newCountry.classList.remove('non-eu')
     showError(null)
     render()

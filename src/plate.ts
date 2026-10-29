@@ -4,9 +4,10 @@ export const COUNTRIES = [
   'SLO', 'H', 'HR', 'RO', 'BG', 'GR', 'CY', 'M', 'EST', 'LV', 'LT',
 ]
 
-// Non-EU European codes (international distinguishing signs). These plates have no EU band, so they are drawn
-// plain, with the code in an oval like the country sticker on the back of a car.
-export const NON_EU = ['CH', 'FL', 'UK', 'N', 'IS', 'AL', 'BIH', 'MK', 'MNE', 'SRB', 'MD', 'UA', 'TR']
+// Non-EU European codes (international distinguishing signs). Their plates have no EU stars, and several have a
+// national band of their own, so they are drawn simplified: a white plate with the code in an oval, like the
+// country sticker on the back of a car.
+export const NON_EU = ['CH', 'FL', 'UK', 'N', 'IS', 'AL', 'BIH', 'NMK', 'MNE', 'RKS', 'SRB', 'MD', 'UA', 'TR']
 
 export const isNonEu = (country?: string) => !!country && NON_EU.includes(country)
 

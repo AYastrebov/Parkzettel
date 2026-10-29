@@ -1,6 +1,6 @@
 import QRCode from 'qrcode'
 import fontUrl from '@fontsource/barlow-condensed/files/barlow-condensed-latin-700-normal.woff2?inline'
-import { LANG_NAMES, LANGS, tIn, type FullLang, type Lang } from './i18n'
+import { lang, LANG_NAMES, LANGS, tIn, type FullLang, type Lang } from './i18n'
 import { ICONS, type IconName } from './icons'
 
 const W = 400
@@ -29,10 +29,22 @@ export interface StickerText {
 // The printed text is for passers-by, so it follows the plate's country rather than the owner's UI language.
 // Only full languages: the embedded font covers basic Latin, not Polish, Turkish or Cyrillic letters.
 // Switzerland is multilingual, so CH keeps the UI language.
-const COUNTRY_LANG: Record<string, FullLang> = { D: 'de', A: 'de', FL: 'de', I: 'it' }
+const COUNTRY_LANG: Record<string, FullLang> = { D: 'de', A: 'de', FL: 'de', I: 'it', UK: 'en', IRL: 'en', M: 'en' }
 
 export const stickerLangFor = (country: string | undefined, ui: Lang): FullLang =>
   COUNTRY_LANG[country ?? ''] ?? (ui in LANGS ? (ui as FullLang) : 'en')
+
+// Keeps a sticker-language select on the plate country's language until the owner picks one (or `picked`
+// restores an earlier pick). Returns the language to print in.
+export function followCountry(select: HTMLSelectElement, country: () => string | undefined, picked?: FullLang) {
+  if (picked) select.value = picked
+  let chosen = !!picked
+  select.addEventListener('change', () => (chosen = true))
+  return (): FullLang => {
+    if (!chosen) select.value = stickerLangFor(country(), lang())
+    return select.value as FullLang
+  }
+}
 
 export const STICKER_LANG_OPTIONS = (Object.keys(LANGS) as FullLang[]).map((l) => `<option value="${l}">${LANG_NAMES[l]}</option>`).join('')
 

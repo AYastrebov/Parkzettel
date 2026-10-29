@@ -1,8 +1,8 @@
 import { PHONE_RE, seal, TELEGRAM_RE, type Contact } from './codec'
-import { lang, onLangChange, t, translate, type FullLang, type Key } from './i18n'
+import { lang, onLangChange, t, translate, type Key } from './i18n'
 import { COUNTRY_OPTIONS, EU_STARS_SVG, isNonEu } from './plate'
 import { canShareFiles, printSticker, shareSticker } from './share'
-import { STICKER_LANG_OPTIONS, stickerLangFor, stickerSvg, stickerText, svgToPngBlob, type Channel } from './sticker'
+import { followCountry, STICKER_LANG_OPTIONS, stickerSvg, stickerText, svgToPngBlob, type Channel } from './sticker'
 
 // The plate sits outside the <form> in the hero; form="gen" still makes it a form control.
 const TEMPLATE = `
@@ -130,10 +130,7 @@ export function renderGenerator(root: HTMLElement) {
   const btn = (act: string) => root.querySelector<HTMLButtonElement>(`[data-act="${act}"]`)!
   const testLink = root.querySelector<HTMLAnchorElement>('[data-act="test"]')!
   field<HTMLSelectElement>('country').value = DEFAULT_COUNTRY[lang()] ?? ''
-  // Follows the plate country and UI language until the owner picks one.
-  const langSel = root.querySelector<HTMLSelectElement>('[name="stickerLang"]')!
-  let langPicked = false
-  langSel.addEventListener('change', () => (langPicked = true))
+  const stickerLang = followCountry(root.querySelector<HTMLSelectElement>('[name="stickerLang"]')!, () => field<HTMLSelectElement>('country').value)
 
   let current: { url: string; svg: string; plate: string } | null = null
   let error: Key | null = null
@@ -172,10 +169,8 @@ export function renderGenerator(root: HTMLElement) {
       if (field('wa').checked) channels.push('whatsapp')
       if (field('telegram').value) channels.push('telegram')
     }
-    const country = field<HTMLSelectElement>('country').value
-    root.querySelector('.plate-edit')!.classList.toggle('non-eu', isNonEu(country))
-    if (!langPicked) langSel.value = stickerLangFor(country, lang())
-    const svg = await stickerSvg(url, stickerText(langSel.value as FullLang), channels)
+    root.querySelector('.plate-edit')!.classList.toggle('non-eu', isNonEu(field<HTMLSelectElement>('country').value))
+    const svg = await stickerSvg(url, stickerText(stickerLang()), channels)
     if (mine !== seq) return // a newer edit superseded this one
     current = res.ok ? { url, svg, plate: res.contact.plate } : null
     stickerEl.innerHTML = svg
