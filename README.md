@@ -16,8 +16,8 @@ A **relay sticker** hides your phone number: messages reach you through a Telegr
 [![Relay stickers](https://img.shields.io/badge/relay%20stickers-Netlify%20Functions%20%2B%20Telegram-229ed9)](#relay-stickers)
 [![Languages](https://img.shields.io/badge/i18n-DE%20%C2%B7%20EN%20%C2%B7%20IT%20%2B%207%20scanner%20languages-141414)](#languages)
 
-[Live site](https://parkzettel.netlify.app/) ·
-[Create a sticker](https://parkzettel.netlify.app/create) ·
+[Live site](https://parkzettel.fyi/) ·
+[Create a sticker](https://parkzettel.fyi/create) ·
 [How it works](#how-it-works) ·
 [Run locally](#run-locally) ·
 [Run your own copy](#run-your-own-copy)
@@ -190,7 +190,7 @@ TELEGRAM_DRY_RUN=1 SESSION_SECRET=dev TELEGRAM_WEBHOOK_SECRET=dev TELEGRAM_BOT_T
 
 ## Run your own copy
 
-The live site is **https://parkzettel.netlify.app/**, deployed by Netlify from `main`.
+The live site is **https://parkzettel.fyi/**, deployed by Netlify from `main`.
 
 1. Import the repo into Netlify. [`netlify.toml`](netlify.toml) holds the build settings and security headers.
 2. For relay stickers, create a bot with [@BotFather](https://t.me/BotFather), run `/setdomain` with your site's domain, and add three environment variables scoped to **Functions**, marked as secret: `TELEGRAM_BOT_TOKEN`, `TELEGRAM_WEBHOOK_SECRET` (any random string) and `SESSION_SECRET` (another one). Set the bot username in `src/account.ts` and `netlify/lib/telegram.ts`. [`docs/bot-avatar.png`](docs/bot-avatar.png) is the bot's profile picture (`/setuserpic`).

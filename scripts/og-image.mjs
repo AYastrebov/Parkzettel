@@ -4,7 +4,7 @@ import { chromium } from 'playwright'
 import { readFileSync } from 'node:fs'
 import { createServer } from 'vite'
 
-const SITE = 'https://parkzettel.netlify.app/'
+const SITE = 'https://parkzettel.fyi/'
 
 const file = (p) => readFileSync(new URL(p, import.meta.url))
 const b64 = (p) => file(p).toString('base64')

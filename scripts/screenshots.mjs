@@ -44,7 +44,7 @@ const privateUrl = await g.getAttribute('[data-act=test]', 'href')
 // The README sticker shows the production domain, not localhost; it is drawn by the same module.
 const png = await g.evaluate(async () => {
   const { stickerSvg, svgToPngBlob } = await import('/src/sticker.ts')
-  const site = 'https://parkzettel.netlify.app/'
+  const site = 'https://parkzettel.fyi/'
   const svg = await stickerSvg(site, { title: 'Blocking you?', sub: 'Scan to contact the driver', domain: new URL(site).host }, ['call', 'whatsapp', 'telegram'])
   const bytes = new Uint8Array(await (await svgToPngBlob(svg)).arrayBuffer())
   return btoa(Array.from(bytes, (x) => String.fromCharCode(x)).join(''))

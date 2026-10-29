@@ -93,7 +93,7 @@ src/icons.ts       Lucide-derived icon paths (ISC)
 src/share.ts       print sheet (two 80 mm copies, print CSS in style.css) and Web Share of the PNG
 src/plate.ts       EU plate stars and country codes
 docs/              README screenshots
-netlify.toml       Netlify build + headers (production: parkzettel.netlify.app)
+netlify.toml       Netlify build + headers (production: parkzettel.fyi)
 ```
 
 ## Gotchas
@@ -105,9 +105,15 @@ netlify.toml       Netlify build + headers (production: parkzettel.netlify.app)
 - Vite builds two pages (`index.html`, `account.html`); `/account` is routed to `account.html` in `netlify.toml`.
 - Secrets (`TELEGRAM_BOT_TOKEN`, `TELEGRAM_WEBHOOK_SECRET`, `SESSION_SECRET`) live only in Netlify environment
   variables scoped to Functions. Never expose them to the Vite build (`import.meta.env`).
-- Open Graph tags in `index.html` use absolute `https://parkzettel.netlify.app/` URLs; update them (and
+- Open Graph tags in `index.html` use absolute `https://parkzettel.fyi/` URLs; update them (and
   `SITE` in `scripts/og-image.mjs`, then `npm run og-image`) if the domain changes.
-- The Telegram webhook is registered by `POST /api/telegram/setup` on production; rerun it if the URL changes.
+- The domain is registered at Cloudflare; its DNS records point to Netlify with the proxy off (grey cloud).
+  Proxying would hide visitors' IPs from `context.ip` (relay rate limit) and put a third party in the path.
+- Stickers printed before the move encode `https://parkzettel.netlify.app/`. Netlify redirects that host to
+  the primary domain, keeping the path and the `#token` fragment. Never delete the site or rename the
+  `parkzettel` subdomain.
+- The Telegram webhook is registered by `POST /api/telegram/setup` on production; rerun it if the URL changes,
+  because Telegram does not follow redirects. The Login Widget needs the domain set in BotFather (`/setdomain`).
 - Token length drives QR density. Don't add payload fields or long defaults without a good reason.
 
 ## Commits and PRs
@@ -120,6 +126,6 @@ netlify.toml       Netlify build + headers (production: parkzettel.netlify.app)
 
 ## Deploys
 
-Netlify deploys `main` to https://parkzettel.netlify.app/ and builds a preview for every PR. The account is on
+Netlify deploys `main` to https://parkzettel.fyi/ and builds a preview for every PR. The account is on
 Netlify's credit-based free plan: each production deploy costs 15 of 300 monthly credits, and the site is paused
 when they run out. Batch changes into one PR rather than pushing many small commits to `main`.
