@@ -1,7 +1,7 @@
 import type { Config, Context } from '@netlify/functions'
 import { json, sameOrigin } from '../lib/http'
 import { readSession } from '../lib/session'
-import { MAX_STICKERS, store, type Lang, type Owner, type Sticker } from '../lib/stores'
+import { MAX_STICKERS, store, type Lang, type Sticker } from '../lib/stores'
 import { botApi } from '../lib/telegram'
 import { cleanCountry, cleanPlate, cleanText, randomId, STICKER_ID_RE } from '../lib/validate'
 
@@ -17,12 +17,11 @@ const view = (id: string, s: Sticker) => ({ id, plate: s.plate, country: s.count
 // Owner API. GET /api/stickers lists the owner's stickers; POST /api/stickers creates one;
 // POST /api/stickers/:id with {action: 'update' | 'delete'} changes one.
 export default async (req: Request, context: Context) => {
-  const uid = await readSession(context)
-  if (!uid) return json({ error: 'unauthorized' }, 401)
+  const session = await readSession(context)
+  if (!session) return json({ error: 'unauthorized' }, 401)
+  const { uid, owner } = session
   const owners = store(context, 'owners')
   const stickers = store(context, 'stickers')
-  const owner = (await owners.get(String(uid), { type: 'json' })) as Owner | null
-  if (!owner) return json({ error: 'unauthorized' }, 401)
 
   if (req.method === 'GET') {
     const list = await Promise.all(

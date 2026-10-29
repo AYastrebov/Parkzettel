@@ -141,14 +141,14 @@ The backend is a handful of Netlify Functions (`netlify/functions/`) with Netlif
 
 | Endpoint | Auth | Purpose |
 |---|---|---|
-| `GET /api/auth/telegram` | Telegram signature | Login Widget callback. Keeps only the numeric ID. |
+| `POST /api/auth/telegram` | Telegram id_token, nonce cookie, same origin | Receives the id_token from Telegram Login. Keeps only the numeric ID. |
 | `GET/POST /api/me` | session | Login status, logout, delete account |
 | `GET/POST /api/stickers[/:id]` | session | List, create, update, switch, delete |
 | `GET /api/s/:id` | public | Plate, country, note, active flag (never the owner's ID) |
 | `POST /api/s/:id/message` | public, rate limited | Send the owner a message via the bot |
 | `GET /api/m/:id` | public | The owner's reply, if any |
 | `POST /api/telegram` | webhook secret | Bot updates: `/start`, reply buttons, text replies |
-| `POST /api/telegram/setup` | production only | Registers the webhook |
+| `POST /api/telegram/setup` | production only, bearer token | Registers the webhook |
 | `cleanup` | scheduled hourly | Deletes expired messages and rate-limit counters |
 
 ## Languages
@@ -184,7 +184,7 @@ TELEGRAM_DRY_RUN=1 SESSION_SECRET=dev TELEGRAM_WEBHOOK_SECRET=dev TELEGRAM_BOT_T
   npx netlify-cli dev      # http://localhost:8888
 ```
 
-`TELEGRAM_DRY_RUN=1` logs bot calls instead of sending them. On `localhost` the account page shows a "Dev login" button, because Telegram's Login Widget only works on the domain registered with BotFather.
+`TELEGRAM_DRY_RUN=1` logs bot calls instead of sending them. On `localhost` the account page shows a "Dev login" button, because Telegram's login only works on the Allowed URLs registered with BotFather.
 
 > [!NOTE]
 > Web Crypto works only on HTTPS or `localhost`. To test private stickers on a phone, serve the dev server over HTTPS
@@ -195,8 +195,9 @@ TELEGRAM_DRY_RUN=1 SESSION_SECRET=dev TELEGRAM_WEBHOOK_SECRET=dev TELEGRAM_BOT_T
 The live site is **https://parkzettel.fyi/**, deployed by Netlify from `main`.
 
 1. Import the repo into Netlify. [`netlify.toml`](netlify.toml) holds the build settings and security headers.
-2. For relay stickers, create a bot with [@BotFather](https://t.me/BotFather), run `/setdomain` with your site's domain, and add three environment variables scoped to **Functions**, marked as secret: `TELEGRAM_BOT_TOKEN`, `TELEGRAM_WEBHOOK_SECRET` (any random string) and `SESSION_SECRET` (another one). Set the bot username in `src/account.ts` and `netlify/lib/telegram.ts`. [`docs/bot-avatar.png`](docs/bot-avatar.png) is the bot's profile picture (`/setuserpic`).
-3. After the first deploy, register the webhook once: `curl -X POST https://<your-site>/api/telegram/setup`. On a domain registered minutes ago, Telegram may answer "Failed to resolve host" for an hour or two; retry later.
+2. For relay stickers, create a bot with [@BotFather](https://t.me/BotFather) and add three environment variables scoped to **Functions**, marked as secret: `TELEGRAM_BOT_TOKEN`, `TELEGRAM_WEBHOOK_SECRET` (any random string) and `SESSION_SECRET` (another one). Set the bot username in `netlify/lib/telegram.ts`. [`docs/bot-avatar.png`](docs/bot-avatar.png) is the bot's profile picture (`/setuserpic`).
+3. Owners log in with [Telegram Login](https://core.telegram.org/widgets/login). In @BotFather open the bot, then **Login Widget**: add your site's origin (`https://<your-site>`) to **Allowed URLs**, keep the signing algorithm at RS256 or ES256, and copy the **Client ID** into a fourth environment variable, `TELEGRAM_CLIENT_ID` (Functions scope, not secret). The login asks only for permission to message the user, so no name, username or photo reaches the site.
+4. After the first deploy, register the webhook once: `curl -X POST -H "Authorization: Bearer $TELEGRAM_WEBHOOK_SECRET" https://<your-site>/api/telegram/setup`. On a domain registered minutes ago, Telegram may answer "Failed to resolve host" for an hour or two; retry later.
 
 Private stickers work on any static host without steps 2 and 3.
 
