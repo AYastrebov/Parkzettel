@@ -194,7 +194,7 @@ The live site is **https://parkzettel.fyi/**, deployed by Netlify from `main`.
 
 1. Import the repo into Netlify. [`netlify.toml`](netlify.toml) holds the build settings and security headers.
 2. For relay stickers, create a bot with [@BotFather](https://t.me/BotFather), run `/setdomain` with your site's domain, and add three environment variables scoped to **Functions**, marked as secret: `TELEGRAM_BOT_TOKEN`, `TELEGRAM_WEBHOOK_SECRET` (any random string) and `SESSION_SECRET` (another one). Set the bot username in `src/account.ts` and `netlify/lib/telegram.ts`. [`docs/bot-avatar.png`](docs/bot-avatar.png) is the bot's profile picture (`/setuserpic`).
-3. After the first deploy, register the webhook once: `curl -X POST https://<your-site>/api/telegram/setup`.
+3. After the first deploy, register the webhook once: `curl -X POST https://<your-site>/api/telegram/setup`. On a domain registered minutes ago, Telegram may answer "Failed to resolve host" for an hour or two; retry later.
 
 Private stickers work on any static host without steps 2 and 3.
 

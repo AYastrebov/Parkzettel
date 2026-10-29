@@ -109,11 +109,12 @@ netlify.toml       Netlify build + headers (production: parkzettel.fyi)
   `SITE` in `scripts/og-image.mjs`, then `npm run og-image`) if the domain changes.
 - The domain is registered at Cloudflare; its DNS records point to Netlify with the proxy off (grey cloud).
   Proxying would hide visitors' IPs from `context.ip` (relay rate limit) and put a third party in the path.
-- Stickers printed before the move encode `https://parkzettel.netlify.app/`. Netlify keeps serving the site on
-  that host (it does not redirect it to the primary domain), so never delete the site or rename the
-  `parkzettel` subdomain.
-- The Telegram webhook is registered by `POST /api/telegram/setup` on production; rerun it if the URL changes,
-  because Telegram does not follow redirects. The Login Widget needs the domain set in BotFather (`/setdomain`).
+- Netlify still serves the site on `parkzettel.netlify.app` (it does not redirect to the primary domain), but
+  Telegram login only works on the domain set in BotFather (`/setdomain`), so `/account` there shows
+  "Bot domain invalid".
+- The Telegram webhook is registered by `POST /api/telegram/setup` on production; rerun it if the URL changes.
+  On a brand-new domain it can fail for an hour or two with "Failed to resolve host", because Telegram caches
+  the failed lookup; retry later.
 - Token length drives QR density. Don't add payload fields or long defaults without a good reason.
 
 ## Commits and PRs
