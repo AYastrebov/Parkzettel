@@ -1,6 +1,7 @@
 import type { Config, Context } from '@netlify/functions'
+import { setting } from '../lib/env'
 import { json, sameOrigin } from '../lib/http'
-import { logout, readSession } from '../lib/session'
+import { issueLoginNonce, logout, readSession } from '../lib/session'
 import { store } from '../lib/stores'
 
 // GET: who is logged in. POST {action: 'logout' | 'delete'}: end the session, or delete the account.
@@ -8,7 +9,9 @@ export default async (req: Request, context: Context) => {
   const session = await readSession(context)
 
   if (req.method === 'GET') {
-    return json(session ? { loggedIn: true, stickers: session.owner.stickers.length } : { loggedIn: false })
+    if (session) return json({ loggedIn: true, stickers: session.owner.stickers.length })
+    // Logged out: what the page needs to start a Telegram login. The client id is public.
+    return json({ loggedIn: false, clientId: setting('TELEGRAM_CLIENT_ID'), nonce: await issueLoginNonce(context) })
   }
 
   if (!sameOrigin(req)) return json({ error: 'forbidden' }, 403)

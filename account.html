@@ -2,8 +2,9 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <!-- Owner pages only: allows Telegram's login widget (script + iframe). Scanner pages never load it. -->
-    <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' https://telegram.org; frame-src https://oauth.telegram.org; style-src 'self' 'unsafe-inline'; font-src 'self' data:; img-src 'self' data: blob:; connect-src 'self' https://ingesteer.services-prod.nsvcs.net https://netlify-rum.netlify.app" />
+    <!-- Owner pages only: allows Telegram's login script (telegram-login.js), which styles the login button and
+         opens Telegram's popup. Scanner pages never load it. -->
+    <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' https://telegram.org; style-src 'self' 'unsafe-inline'; font-src 'self' data:; img-src 'self' data: blob:; connect-src 'self' https://ingesteer.services-prod.nsvcs.net https://netlify-rum.netlify.app" />
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
     <meta name="referrer" content="no-referrer" />
     <meta name="theme-color" content="#f7ba0b" />

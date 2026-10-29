@@ -10,6 +10,15 @@ import { randomId } from './validate'
 const COOKIE = 'pz_session'
 const MAX_AGE_S = 30 * 24 * 60 * 60
 
+// Login nonce cookie: "<nonce>.<expiry>.<hmac>", set when the account page shows the login button. The nonce
+// goes to Telegram with the login request and comes back inside the id_token, and the cookie proves that
+// this browser started the attempt. A token obtained in another browser therefore cannot log anyone in here.
+const LOGIN_COOKIE = 'pz_login'
+const LOGIN_MAX_AGE_S = 10 * 60
+
+const cookie = (context: Context, name: string, value: string, exp: number) =>
+  context.cookies.set({ name, value, path: '/api', httpOnly: true, secure: true, sameSite: 'Strict', expires: exp * 1000 })
+
 export interface Session {
   uid: number
   owner: Owner
@@ -25,16 +34,7 @@ export async function login(context: Context, uid: number) {
   }
   const exp = Math.floor(Date.now() / 1000) + MAX_AGE_S
   const payload = `${uid}.${exp}.${owner.session}`
-  const sig = await hmacHex(secret('SESSION_SECRET'), payload)
-  context.cookies.set({
-    name: COOKIE,
-    value: `${payload}.${sig}`,
-    path: '/api',
-    httpOnly: true,
-    secure: true,
-    sameSite: 'Strict',
-    expires: exp * 1000,
-  })
+  cookie(context, COOKIE, `${payload}.${await hmacHex(secret('SESSION_SECRET'), payload)}`, exp)
 }
 
 // The logged-in owner, or null when the cookie is missing, expired, forged or revoked.
@@ -57,4 +57,23 @@ export async function logout(context: Context, session: Session | null) {
     await store(context, 'owners').setJSON(String(session.uid), session.owner)
   }
   context.cookies.delete({ name: COOKIE, path: '/api' })
+}
+
+export async function issueLoginNonce(context: Context): Promise<string> {
+  const nonce = randomId(16)
+  const exp = Math.floor(Date.now() / 1000) + LOGIN_MAX_AGE_S
+  cookie(context, LOGIN_COOKIE, `${nonce}.${exp}.${await hmacHex(secret('SESSION_SECRET'), `login|${nonce}.${exp}`)}`, exp)
+  return nonce
+}
+
+// Reads and clears the nonce cookie, so each nonce completes at most one login.
+export async function takeLoginNonce(context: Context): Promise<string | null> {
+  const raw = context.cookies.get(LOGIN_COOKIE)
+  context.cookies.delete({ name: LOGIN_COOKIE, path: '/api' })
+  const m = raw?.match(/^([A-Za-z0-9]{16})\.(\d{1,12})\.([0-9a-f]{64})$/)
+  if (!m) return null
+  const [, nonce, exp, sig] = m
+  if (Number(exp) * 1000 < Date.now()) return null
+  const expected = await hmacHex(secret('SESSION_SECRET'), `login|${nonce}.${exp}`)
+  return safeEqual(sig, expected) ? nonce : null
 }

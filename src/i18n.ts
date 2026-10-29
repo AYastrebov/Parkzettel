@@ -96,6 +96,8 @@ const en = {
   'acc.title': 'Relay stickers',
   'acc.lead':
     'A relay sticker keeps your phone number private: people message you through the Parkzettel Telegram bot instead of calling you. Log in with Telegram to manage your relay stickers.',
+  'acc.login': 'Log in with Telegram',
+  'acc.loginFailed': 'Login failed. Please try again.',
   'acc.stored': 'We keep only your numeric Telegram ID. Your name, username and photo are discarded, and the login cookie is used for nothing else.',
   'acc.in': 'You are logged in with Telegram.',
   'acc.logout': 'Log out',
@@ -240,6 +242,8 @@ const de: Dict = {
   'acc.title': 'Relay-Aufkleber',
   'acc.lead':
     'Ein Relay-Aufkleber hält Ihre Telefonnummer privat: Man schreibt Ihnen über den Parkzettel-Bot in Telegram, statt Sie anzurufen. Melden Sie sich mit Telegram an, um Ihre Relay-Aufkleber zu verwalten.',
+  'acc.login': 'Mit Telegram anmelden',
+  'acc.loginFailed': 'Anmeldung fehlgeschlagen. Bitte versuchen Sie es erneut.',
   'acc.stored': 'Wir speichern nur Ihre numerische Telegram-ID. Name, Benutzername und Foto werden verworfen, und das Login-Cookie dient nur der Anmeldung.',
   'acc.in': 'Sie sind mit Telegram angemeldet.',
   'acc.logout': 'Abmelden',
@@ -381,6 +385,8 @@ const it: Dict = {
   'acc.title': 'Adesivi relay',
   'acc.lead':
     'Un adesivo relay tiene privato il tuo numero di telefono: ti scrivono tramite il bot Telegram di Parkzettel invece di chiamarti. Accedi con Telegram per gestire i tuoi adesivi relay.',
+  'acc.login': 'Accedi con Telegram',
+  'acc.loginFailed': 'Accesso non riuscito. Riprova.',
   'acc.stored': "Conserviamo solo il tuo ID numerico di Telegram. Nome, username e foto vengono scartati, e il cookie di accesso serve solo per l'accesso.",
   'acc.in': "Hai effettuato l'accesso con Telegram.",
   'acc.logout': 'Esci',

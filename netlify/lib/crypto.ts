@@ -2,10 +2,6 @@ const enc = new TextEncoder()
 
 const hex = (buf: ArrayBuffer) => Array.from(new Uint8Array(buf), (b) => b.toString(16).padStart(2, '0')).join('')
 
-export async function sha256(data: string): Promise<ArrayBuffer> {
-  return crypto.subtle.digest('SHA-256', enc.encode(data))
-}
-
 export async function hmacHex(key: string | ArrayBuffer, data: string): Promise<string> {
   const raw = typeof key === 'string' ? enc.encode(key) : key
   const k = await crypto.subtle.importKey('raw', raw, { name: 'HMAC', hash: 'SHA-256' }, false, ['sign'])

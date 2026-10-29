@@ -18,8 +18,10 @@ There is no backend. Contact data lives only in the encrypted token inside the Q
 - Dev server: `npm run dev` (http://localhost:5173), frontend only
 - With functions: `npx netlify-cli dev` (http://localhost:8888). Set `SESSION_SECRET`, `TELEGRAM_BOT_TOKEN`
   and `TELEGRAM_WEBHOOK_SECRET` to dummy values in the shell. The account page shows a "Dev login" button on
-  localhost, because Telegram's login only works on the registered domain. Add `TELEGRAM_DRY_RUN=1` to log
-  bot calls instead of sending them.
+  localhost, because Telegram's login only works on the Allowed URLs registered in BotFather. Add `TELEGRAM_DRY_RUN=1` to log
+  bot calls instead of sending them. Telegram login needs `TELEGRAM_CLIENT_ID`; to exercise it locally without
+  Telegram, point `TELEGRAM_JWKS_URL` at a key set of your own and sign id_tokens with it (the scratch test in
+  the PR that introduced `netlify/lib/oidc.ts` did that).
 - Type-check and build: `npm run build`. Run it after every change; it must pass with zero errors.
 - Preview the production build: `npm run preview`
 
@@ -40,7 +42,7 @@ the "Test the page" link, and confirm the buttons' `href`s. Do this in at least 
    Monitoring script (performance timings, no cookies, no URL) and the two HTML `<meta>` CSPs allow its collector
    in `connect-src`; keep it that way unless the owner turns RUM off in Netlify.
 3. **No external requests at runtime,** with one exception: the account page (`account.html`) loads Telegram's
-   login script (it opens a popup; the result is POSTed to our API). Scanner and generator pages load nothing from third parties: no CDNs, Google Fonts or remote
+   login script (`telegram-login.js`; it opens a popup, and the id_token is POSTed to our API). Scanner and generator pages load nothing from third parties: no CDNs, Google Fonts or remote
    images. Bundle fonts through `@fontsource/*`. Each HTML page sets its own CSP in a `<meta>` tag; keep the
    one in `index.html` strict, and only widen `account.html` for Telegram.
 4. **Treat decoded data as untrusted.** Anyone can craft a token. Insert user values with `textContent`
@@ -112,8 +114,8 @@ netlify.toml       Netlify build + headers (production: parkzettel.fyi)
 - The domain is registered at Cloudflare; its DNS records point to Netlify with the proxy off (grey cloud).
   Proxying would hide visitors' IPs from `context.ip` (relay rate limit) and put a third party in the path.
 - Netlify still serves the site on `parkzettel.netlify.app` (it does not redirect to the primary domain), but
-  Telegram login only works on the domain set in BotFather (`/setdomain`), so `/account` there shows
-  "Bot domain invalid".
+  Telegram login only works on the Allowed URLs set in BotFather's Login Widget settings, so logging in there
+  fails inside Telegram's popup.
 - The Telegram webhook is registered by `POST /api/telegram/setup` on production, with the webhook secret as a
   bearer token (`Authorization: Bearer $TELEGRAM_WEBHOOK_SECRET`); rerun it if the URL changes.
   On a brand-new domain it can fail for an hour or two with "Failed to resolve host", because Telegram caches

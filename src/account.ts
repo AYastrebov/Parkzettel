@@ -4,14 +4,12 @@ import { COUNTRY_OPTIONS, isNonEu } from './plate'
 import { canShareFiles, printSticker, shareSticker } from './share'
 import { followCountry, STICKER_LANG_OPTIONS, stickerSvg, stickerText, svgToPngBlob } from './sticker'
 
-const BOT_USERNAME = 'ParkzettelBot'
-
 const TEMPLATE = `
 <section class="account">
   <h1 data-i18n="acc.title"></h1>
   <p class="lead" data-i18n="acc.lead"></p>
   <div class="acc-out" hidden>
-    <div class="tg-login"></div>
+    <div class="tg-auth-button tg-login" data-style="rounded"><span data-i18n="acc.login"></span></div>
     <button type="button" class="btn dev-login" hidden>Dev login (localhost)</button>
     <p class="small" data-i18n="acc.stored"></p>
   </div>
@@ -67,19 +65,54 @@ interface StickerView {
   active: boolean
 }
 
-// Telegram's widget replaces itself with an iframe, so it is re-created whenever the language changes.
-// On success it redirects to /api/auth/telegram, which verifies the login and sets the session cookie.
-function mountWidget(el: HTMLElement) {
-  el.replaceChildren()
-  const s = document.createElement('script')
-  s.async = true
-  s.src = 'https://telegram.org/js/telegram-widget.js?22'
-  s.dataset.telegramLogin = BOT_USERNAME
-  s.dataset.size = 'large'
-  s.dataset.authUrl = new URL('/api/auth/telegram', location.origin).href
-  s.dataset.requestAccess = 'write'
-  s.dataset.lang = lang()
-  el.append(s)
+// Telegram Login (https://core.telegram.org/widgets/login): Telegram's script styles the .tg-auth-button
+// element and opens Telegram's login popup when it is clicked. The result is an OpenID id_token, which the
+// page POSTs to /api/auth/telegram. The token carries a nonce our API issued to this browser, so a login
+// result obtained elsewhere cannot be planted here (login CSRF). Only the "write" scope is requested, so
+// the token names the user ID and nothing else. The script's data-onauth attribute is not used: it runs
+// its value through new Function, which the CSP forbids.
+interface TelegramLogin {
+  init(options: object, callback: (result: { id_token?: string; error?: string }) => void): void
+}
+declare global {
+  interface Window {
+    Telegram?: { Login: TelegramLogin }
+  }
+}
+
+let script: Promise<TelegramLogin> | null = null
+const loadLogin = () =>
+  (script ??= new Promise((ok, fail) => {
+    const s = document.createElement('script')
+    s.src = 'https://telegram.org/js/telegram-login.js'
+    s.onload = () => (window.Telegram ? ok(window.Telegram.Login) : fail(new Error('login script')))
+    s.onerror = () => fail(new Error('login script'))
+    document.head.append(s)
+  }))
+
+async function onTelegramAuth(result: { id_token?: string; error?: string }) {
+  if (result.error === 'popup_closed') return // the owner changed their mind
+  if (!result.id_token) return showError('acc.loginFailed')
+  try {
+    await api('/api/auth/telegram', 'POST', { id_token: result.id_token })
+    showError(null)
+    render()
+  } catch {
+    showError('acc.loginFailed')
+  }
+}
+
+// init() registers the callback and styles the button; it is called again on a language change so the
+// popup opens in the current language.
+let loginOptions: { client_id: string; nonce: string } | null = null
+async function mountLogin(clientId: string | undefined, nonce: string | undefined) {
+  if (!clientId || !nonce) return showError('acc.error')
+  loginOptions = { client_id: clientId, nonce }
+  try {
+    ;(await loadLogin()).init({ ...loginOptions, scope: ['write'], lang: lang() }, onTelegramAuth)
+  } catch {
+    showError('acc.error')
+  }
 }
 
 async function api<T>(path: string, method: 'GET' | 'POST' = 'GET', body?: Record<string, unknown>): Promise<T> {
@@ -190,22 +223,18 @@ function renderItem(s: StickerView): HTMLLIElement {
 async function render() {
   const out = root.querySelector<HTMLElement>('.acc-out')!
   const inn = root.querySelector<HTMLElement>('.acc-in')!
-  const failed = new URLSearchParams(location.search).get('login') === 'failed'
-  if (failed) history.replaceState(null, '', '/account')
-
-  let me: { loggedIn?: boolean }
+  let me: { loggedIn?: boolean; clientId?: string; nonce?: string }
   try {
     me = await api('/api/me')
   } catch {
     showError('acc.error')
     return
   }
-  showError(failed ? 'acc.error' : null)
   out.hidden = !!me.loggedIn
   inn.hidden = !me.loggedIn
   if (!me.loggedIn) {
     if (location.hostname === 'localhost') root.querySelector<HTMLElement>('.dev-login')!.hidden = false
-    else mountWidget(root.querySelector('.tg-login')!)
+    else mountLogin(me.clientId, me.nonce)
     return
   }
   const { stickers } = await api<{ stickers: StickerView[] }>('/api/stickers')
@@ -220,8 +249,7 @@ onLangChange(() => {
   translate(root)
   itemSyncs.forEach((sync) => sync())
   showError(errorKey)
-  const widget = root.querySelector<HTMLElement>('.tg-login')!
-  if (!root.querySelector<HTMLElement>('.acc-out')!.hidden && widget.childElementCount) mountWidget(widget)
+  if (loginOptions && window.Telegram) window.Telegram.Login.init({ ...loginOptions, scope: ['write'], lang: lang() }, onTelegramAuth)
 })
 
 const newCountry = root.querySelector<HTMLSelectElement>('.new-sticker [name="country"]')!

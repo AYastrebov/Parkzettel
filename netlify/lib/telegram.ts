@@ -1,27 +1,6 @@
-import { hmacHex, safeEqual, sha256 } from './crypto'
 import { secret } from './env'
 
 export const BOT_USERNAME = 'ParkzettelBot'
-
-const MAX_LOGIN_AGE_S = 10 * 60
-
-// Verifies data from the Telegram Login Widget: https://core.telegram.org/widgets/login#checking-authorization
-// Returns the Telegram user ID, or null if the signature is wrong or the login is stale.
-export async function verifyLogin(params: URLSearchParams, botToken = secret('TELEGRAM_BOT_TOKEN')): Promise<number | null> {
-  const hash = params.get('hash')
-  const id = params.get('id')
-  const authDate = Number(params.get('auth_date'))
-  if (!hash || !id || !/^\d{1,20}$/.test(id) || !authDate) return null
-  if (Date.now() / 1000 - authDate > MAX_LOGIN_AGE_S) return null
-
-  const checkString = [...params.entries()]
-    .filter(([k]) => k !== 'hash')
-    .map(([k, v]) => `${k}=${v}`)
-    .sort()
-    .join('\n')
-  const expected = await hmacHex(await sha256(botToken), checkString)
-  return safeEqual(hash, expected) ? Number(id) : null
-}
 
 export async function botApi(method: string, body: Record<string, unknown>): Promise<unknown> {
   // Local development: log instead of calling Telegram (set TELEGRAM_DRY_RUN=1 for netlify dev).
