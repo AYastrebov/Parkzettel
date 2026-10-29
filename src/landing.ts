@@ -22,12 +22,16 @@ export function renderLanding(root: HTMLElement) {
   }
 
   const sync = () => {
+    // On a language URL, the picker loads that language's prerendered page, so the head (canonical,
+    // description, structured data) matches too. Scanner languages have no landing URL; "/" uses the saved choice.
+    const fromPath = pathLang(location.pathname)
+    if (fromPath && fromPath !== lang()) {
+      location.replace(lang() in LANGS ? `/${lang()}/` : '/')
+      return
+    }
     translate(root)
     document.title = t('l.title')
     drawSticker()
-    // On a language URL, follow the picker so the address matches the language shown. Scanner languages have
-    // no landing URL, so they go to "/", which honours the saved choice.
-    if (pathLang(location.pathname)) history.replaceState(null, '', lang() in LANGS ? `/${lang()}/` : '/')
   }
   sync()
   onLangChange(sync)
