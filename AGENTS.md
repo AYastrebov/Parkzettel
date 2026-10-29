@@ -109,8 +109,8 @@ netlify.toml       Netlify build + headers (production: parkzettel.fyi)
   `SITE` in `scripts/og-image.mjs`, then `npm run og-image`) if the domain changes.
 - The domain is registered at Cloudflare; its DNS records point to Netlify with the proxy off (grey cloud).
   Proxying would hide visitors' IPs from `context.ip` (relay rate limit) and put a third party in the path.
-- Stickers printed before the move encode `https://parkzettel.netlify.app/`. Netlify redirects that host to
-  the primary domain, keeping the path and the `#token` fragment. Never delete the site or rename the
+- Stickers printed before the move encode `https://parkzettel.netlify.app/`. Netlify keeps serving the site on
+  that host (it does not redirect it to the primary domain), so never delete the site or rename the
   `parkzettel` subdomain.
 - The Telegram webhook is registered by `POST /api/telegram/setup` on production; rerun it if the URL changes,
   because Telegram does not follow redirects. The Login Widget needs the domain set in BotFather (`/setdomain`).
