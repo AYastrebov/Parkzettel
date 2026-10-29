@@ -711,11 +711,26 @@ const dict = (l: Lang): Partial<Dict> => (l in LANGS ? LANGS[l as FullLang] : SC
 
 const STORAGE_KEY = 'parkzettel.lang'
 
+// Landing pages have one URL per full language (/de/, /en/, /it/) for search engines. The path wins over any
+// saved choice so the page matches what was indexed, and is saved so /create and /account keep it.
+export function pathLang(path: string): FullLang | undefined {
+  const l = path.match(/^\/([a-z]{2})\/?$/)?.[1]
+  return l && l in LANGS ? (l as FullLang) : undefined
+}
+
 function detect(): Lang {
+  // vite.config.ts imports this module in Node to prerender the landing page; there is no browser state.
+  if (typeof window === 'undefined') return 'en'
+  const fromPath = pathLang(location.pathname)
   try {
+    if (fromPath) {
+      localStorage.setItem(STORAGE_KEY, fromPath)
+      return fromPath
+    }
     const saved = localStorage.getItem(STORAGE_KEY)
     if (saved && isLang(saved)) return saved
   } catch {}
+  if (fromPath) return fromPath
   for (const l of navigator.languages ?? [navigator.language]) {
     const base = l.slice(0, 2).toLowerCase()
     if (isLang(base)) return base
@@ -728,9 +743,12 @@ const listeners = new Set<() => void>()
 
 export const lang = () => current
 
-export function t(key: Key, vars: Record<string, string> = {}): string {
-  return (dict(current)[key] ?? en[key]).replace(/\{(\w+)\}/g, (_, k) => vars[k] ?? '')
+// Lookup in a given language, without the page state; the build-time prerender uses it.
+export function tIn(l: Lang, key: Key, vars: Record<string, string> = {}): string {
+  return (dict(l)[key] ?? en[key]).replace(/\{(\w+)\}/g, (_, k) => vars[k] ?? '')
 }
+
+export const t = (key: Key, vars: Record<string, string> = {}) => tIn(current, key, vars)
 
 export function setLang(l: Lang) {
   current = l

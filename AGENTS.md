@@ -3,7 +3,8 @@
 Parkzettel is a static web app (Vite + vanilla TypeScript, no framework) that makes QR car stickers.
 It has two modes, chosen in `src/main.ts` by the URL fragment:
 
-- `/`: landing page (`src/landing.ts`), the page people share.
+- `/`: landing page (`src/landing.ts`), the page people share, in the visitor's language. `/de/`, `/en/` and `/it/`
+  are the same page in a fixed language, prerendered at build time for search engines (see Gotchas).
 - `/create`: generator (`src/generator.ts`). The owner enters plate and contact channels and downloads a sticker.
 - `/#<token>`: private sticker contact page (`src/contact.ts`). Printed stickers point here, so `/` with a
   fragment must always open the contact page, and the generator always encodes the root URL.
@@ -79,6 +80,7 @@ the "Test the page" link, and confirm the buttons' `href`s. Do this in at least 
 src/chrome.ts      shared header, language switcher, footer
 src/main.ts        public app entry: routing (/s/<id>, /#token, /create, / → landing)
 src/landing.ts     landing page
+src/markup.ts      header/footer and landing markup, DOM-free so vite.config.ts can prerender it
 src/account.ts     owner account page: Telegram login, relay sticker management
 src/relay.ts       relay scan page (/s/<id>): message the owner, poll for the reply
 netlify/functions/ API: login, session (/api/me), stickers, relay (/api/s, /api/m), webhook, cleanup
@@ -115,6 +117,12 @@ netlify.toml       Netlify build + headers (production: parkzettel.fyi)
 - The Telegram webhook is registered by `POST /api/telegram/setup` on production; rerun it if the URL changes.
   On a brand-new domain it can fail for an hour or two with "Failed to resolve host", because Telegram caches
   the failed lookup; retry later.
+- `vite.config.ts` prerenders the landing page into `dist/{de,en,it}/index.html` (title, description, canonical,
+  hreflang, JSON-LD, full text) and writes `sitemap.xml` and `robots.txt`. It edits tags in the built
+  `index.html` by pattern and fails the build if one no longer matches. `index.html` itself stays an empty
+  shell, because `/#token`, `/s/<id>` and `/create` load it too. Landing markup must stay in `src/markup.ts`
+  with empty `[data-i18n]` elements so both the browser and the build can fill it. `SITE` in `vite.config.ts`
+  holds the production origin; update it with the Open Graph tags if the domain changes.
 - Token length drives QR density. Don't add payload fields or long defaults without a good reason.
 
 ## Commits and PRs

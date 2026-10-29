@@ -1,4 +1,5 @@
 import { mountChrome } from './chrome'
+import { lang, LANGS, pathLang } from './i18n'
 import { renderContact } from './contact'
 import { renderGenerator } from './generator'
 import { renderLanding } from './landing'
@@ -26,6 +27,13 @@ if (relayId) {
 } else if (/^\/create\/?$/.test(location.pathname)) {
   renderGenerator(view)
 } else {
+  // "/" shows the visitor's language; search engines are pointed at the matching prerendered page.
+  if (!pathLang(location.pathname)) {
+    const canonical = document.createElement('link')
+    canonical.rel = 'canonical'
+    canonical.href = new URL(`/${lang() in LANGS ? lang() : 'en'}/`, location.origin).href
+    document.head.append(canonical)
+  }
   renderLanding(view)
 }
 
