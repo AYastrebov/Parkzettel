@@ -52,6 +52,7 @@ export default async (req: Request, context: Context) => {
     chat_id: sticker.owner,
     text: ownerMessage(owner?.lang, sticker.plate, preset, text),
     reply_markup: keyboard(owner?.lang, messageId, id, true),
+    link_preview_options: { is_disabled: true }, // a scanner's URL must not unfurl in the owner's chat
   }).catch((e) => (console.error(e), null))) as { message_id: number } | null
   if (!sent) {
     await messages.delete(messageId)
