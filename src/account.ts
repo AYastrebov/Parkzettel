@@ -1,12 +1,10 @@
 import { mountChrome } from './chrome'
-import { lang, onLangChange, t, translate, type Key } from './i18n'
-import { COUNTRIES } from './plate'
+import { lang, onLangChange, t, translate, type FullLang, type Key } from './i18n'
+import { COUNTRY_OPTIONS, isNonEu } from './plate'
 import { canShareFiles, printSticker, shareSticker } from './share'
-import { stickerSvg, svgToPngBlob } from './sticker'
+import { followCountry, STICKER_LANG_OPTIONS, stickerSvg, stickerText, svgToPngBlob } from './sticker'
 
 const BOT_USERNAME = 'ParkzettelBot'
-
-const COUNTRY_OPTIONS = `<option value="">–</option>${COUNTRIES.map((c) => `<option>${c}</option>`).join('')}`
 
 const TEMPLATE = `
 <section class="account">
@@ -49,6 +47,7 @@ const ITEM = `
     <span class="badge"></span>
   </div>
   <input name="note" maxlength="100" data-i18n-ph="f.notePh" data-i18n-label="f.note" />
+  <label class="sticker-lang"><span data-i18n="p.lang"></span><select name="stickerLang">${STICKER_LANG_OPTIONS}</select></label>
   <div class="item-actions">
     <button type="button" class="btn primary" data-act="print" data-i18n="p.print"></button>
     <button type="button" class="btn" data-act="share" hidden data-i18n="p.share"></button>
@@ -107,17 +106,19 @@ function showError(key: Key | null) {
   errorEl.textContent = key ? t(key) : ''
 }
 
+// Sticker languages the owner picked, by sticker id; render() rebuilds the items, so they live here.
+const pickedLangs = new Map<string, FullLang>()
+
 // Per-item language refreshers; replaced on every render so detached items don't pile up.
 let itemSyncs: (() => void)[] = []
 
 const stickerUrl = (id: string) => new URL(`/s/${id}`, location.origin).href
 
-const buildSvg = (s: StickerView) =>
-  stickerSvg(stickerUrl(s.id), { title: t('s.title'), sub: t('s.sub'), domain: location.host }, ['message'], 'H')
+const buildSvg = (s: StickerView, l: FullLang) => stickerSvg(stickerUrl(s.id), stickerText(l), ['message'], 'H')
 const fileName = (s: StickerView) => `parkzettel-${s.plate.replace(/[^A-Z0-9]+/gi, '-')}`
 
-async function download(s: StickerView, kind: 'png' | 'svg') {
-  const svg = await buildSvg(s)
+async function download(s: StickerView, l: FullLang, kind: 'png' | 'svg') {
+  const svg = await buildSvg(s, l)
   const blob = kind === 'svg' ? new Blob([svg], { type: 'image/svg+xml' }) : await svgToPngBlob(svg)
   const a = document.createElement('a')
   a.href = URL.createObjectURL(blob)
@@ -135,9 +136,13 @@ function renderItem(s: StickerView): HTMLLIElement {
   field('plate').value = s.plate
   field('note').value = s.note ?? ''
   li.querySelector<HTMLAnchorElement>('[data-act="open"]')!.href = stickerUrl(s.id)
+  // Not saved to the server: it only affects the next print or download.
+  const stickerLang = followCountry(field<HTMLSelectElement>('stickerLang'), () => s.country, pickedLangs.get(s.id))
 
   const sync = () => {
     translate(li)
+    stickerLang()
+    field('country').classList.toggle('non-eu', isNonEu(s.country))
     li.classList.toggle('off', !s.active)
     li.querySelector('.badge')!.textContent = t(s.active ? 'acc.active' : 'acc.inactive')
     li.querySelector('[data-act="toggle"]')!.textContent = t(s.active ? 'acc.turnOff' : 'acc.turnOn')
@@ -148,7 +153,9 @@ function renderItem(s: StickerView): HTMLLIElement {
   // Edits apply to the printed sticker right away; that is the point of relay stickers.
   const save = async (patch: Record<string, unknown>) => {
     try {
-      Object.assign(s, (await api<{ sticker: StickerView }>(`/api/stickers/${s.id}`, 'POST', { action: 'update', ...patch })).sticker)
+      const { sticker } = await api<{ sticker: StickerView }>(`/api/stickers/${s.id}`, 'POST', { action: 'update', ...patch })
+      // Cleared optional fields are missing from the JSON, so reset them instead of keeping the old values.
+      Object.assign(s, { country: undefined, note: undefined }, sticker)
       showError(null)
       sync()
     } catch {
@@ -157,15 +164,20 @@ function renderItem(s: StickerView): HTMLLIElement {
   }
   li.addEventListener('change', (e) => {
     const el = e.target as HTMLInputElement
+    if (el.name === 'stickerLang') {
+      pickedLangs.set(s.id, el.value as FullLang)
+      return
+    }
+    if (el.name === 'country') el.classList.toggle('non-eu', isNonEu(el.value))
     if (el.name === 'plate') el.value = el.value.trim().toUpperCase()
     save({ [el.name]: el.value })
   })
-  li.querySelector('[data-act="print"]')!.addEventListener('click', async () => printSticker(await buildSvg(s)))
+  li.querySelector('[data-act="print"]')!.addEventListener('click', async () => printSticker(await buildSvg(s, stickerLang())))
   const share = li.querySelector<HTMLElement>('[data-act="share"]')!
   share.hidden = !canShareFiles()
-  share.addEventListener('click', async () => shareSticker(await buildSvg(s), `${fileName(s)}.png`))
-  li.querySelector('[data-act="png"]')!.addEventListener('click', () => download(s, 'png'))
-  li.querySelector('[data-act="svg"]')!.addEventListener('click', () => download(s, 'svg'))
+  share.addEventListener('click', async () => shareSticker(await buildSvg(s, stickerLang()), `${fileName(s)}.png`))
+  li.querySelector('[data-act="png"]')!.addEventListener('click', () => download(s, stickerLang(), 'png'))
+  li.querySelector('[data-act="svg"]')!.addEventListener('click', () => download(s, stickerLang(), 'svg'))
   li.querySelector('[data-act="toggle"]')!.addEventListener('click', () => save({ active: !s.active }))
   li.querySelector('[data-act="remove"]')!.addEventListener('click', async () => {
     if (!confirm(t('acc.removeConfirm'))) return
@@ -212,6 +224,8 @@ onLangChange(() => {
   if (!root.querySelector<HTMLElement>('.acc-out')!.hidden && widget.childElementCount) mountWidget(widget)
 })
 
+const newCountry = root.querySelector<HTMLSelectElement>('.new-sticker [name="country"]')!
+newCountry.addEventListener('change', () => newCountry.classList.toggle('non-eu', isNonEu(newCountry.value)))
 root.querySelector('.new-sticker')!.addEventListener('submit', async (e) => {
   e.preventDefault()
   const form = e.target as HTMLFormElement
@@ -219,6 +233,7 @@ root.querySelector('.new-sticker')!.addEventListener('submit', async (e) => {
   try {
     await api('/api/stickers', 'POST', data)
     form.reset()
+    newCountry.classList.remove('non-eu')
     showError(null)
     render()
   } catch (err) {

@@ -93,7 +93,7 @@ src/sticker.ts     sticker SVG and PNG export
 src/i18n.ts        full (DE/EN/IT) and scanner-tier dictionaries, language detection, picker names
 src/icons.ts       Lucide-derived icon paths (ISC)
 src/share.ts       print sheet (two 80 mm copies, print CSS in style.css) and Web Share of the PNG
-src/plate.ts       EU plate stars and country codes
+src/plate.ts       plate country codes (EU and non-EU), EU stars, showCountry()
 docs/              README screenshots
 netlify.toml       Netlify build + headers (production: parkzettel.fyi)
 ```
@@ -123,6 +123,9 @@ netlify.toml       Netlify build + headers (production: parkzettel.fyi)
   shell, because `/#token`, `/s/<id>` and `/create` load it too. Landing markup must stay in `src/markup.ts`
   with empty `[data-i18n]` elements so both the browser and the build can fill it. `SITE` in `vite.config.ts`
   holds the production origin; update it with the Open Graph tags if the domain changes.
+- The printed sticker text has its own language, separate from the UI: `stickerLangFor()` in `src/sticker.ts`
+  derives it from the plate country until the owner picks one, and it is never saved or encoded in the token. It
+  is limited to DE/EN/IT because the embedded sticker font covers basic Latin only (no Polish, Turkish or Cyrillic).
 - Token length drives QR density. Don't add payload fields or long defaults without a good reason.
 
 ## Commits and PRs
