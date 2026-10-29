@@ -233,6 +233,30 @@ select option {
   overflow-wrap: anywhere;
 }
 
+/* Non-EU plates (CH, UK, ...) have no blue band: the code sits in an oval on the white plate. */
+.plate.non-eu .plate-eu {
+  background: transparent;
+  color: #1e1e1e;
+}
+
+.plate.non-eu .plate-stars {
+  display: none;
+}
+
+.plate.non-eu .plate-country,
+.plate.non-eu select {
+  border: 2px solid #1e1e1e;
+  border-radius: 50%;
+  padding: 4px 7px;
+  font-size: 0.85em;
+  color: #1e1e1e;
+}
+
+.plate.non-eu .plate-eu:has(select) {
+  width: auto;
+  padding-left: 10px;
+}
+
 /* ---------- generator ---------- */
 
 .bench {
@@ -748,6 +772,12 @@ textarea:focus {
   border-radius: 8px;
   background: var(--eu-blue);
   color: #fff;
+}
+
+.item-row select.non-eu,
+.new-row select.non-eu {
+  background: #fff;
+  color: #1e1e1e;
 }
 
 .plate-input {

@@ -93,7 +93,7 @@ src/sticker.ts     sticker SVG and PNG export
 src/i18n.ts        full (DE/EN/IT) and scanner-tier dictionaries, language detection, picker names
 src/icons.ts       Lucide-derived icon paths (ISC)
 src/share.ts       print sheet (two 80 mm copies, print CSS in style.css) and Web Share of the PNG
-src/plate.ts       EU plate stars and country codes
+src/plate.ts       plate country codes (EU and non-EU), EU stars, showCountry()
 docs/              README screenshots
 netlify.toml       Netlify build + headers (production: parkzettel.fyi)
 ```

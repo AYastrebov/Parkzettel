@@ -28,7 +28,8 @@ export interface StickerText {
 
 // The printed text is for passers-by, so it follows the plate's country rather than the owner's UI language.
 // Only full languages: the embedded font covers basic Latin, not Polish, Turkish or Cyrillic letters.
-const COUNTRY_LANG: Record<string, FullLang> = { D: 'de', A: 'de', I: 'it' }
+// Switzerland is multilingual, so CH keeps the UI language.
+const COUNTRY_LANG: Record<string, FullLang> = { D: 'de', A: 'de', FL: 'de', I: 'it' }
 
 export const stickerLangFor = (country: string | undefined, ui: Lang): FullLang =>
   COUNTRY_LANG[country ?? ''] ?? (ui in LANGS ? (ui as FullLang) : 'en')

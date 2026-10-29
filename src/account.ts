@@ -1,12 +1,10 @@
 import { mountChrome } from './chrome'
 import { lang, onLangChange, t, translate, type FullLang, type Key } from './i18n'
-import { COUNTRIES } from './plate'
+import { COUNTRY_OPTIONS, isNonEu } from './plate'
 import { canShareFiles, printSticker, shareSticker } from './share'
 import { STICKER_LANG_OPTIONS, stickerLangFor, stickerSvg, stickerText, svgToPngBlob } from './sticker'
 
 const BOT_USERNAME = 'ParkzettelBot'
-
-const COUNTRY_OPTIONS = `<option value="">–</option>${COUNTRIES.map((c) => `<option>${c}</option>`).join('')}`
 
 const TEMPLATE = `
 <section class="account">
@@ -143,6 +141,7 @@ function renderItem(s: StickerView): HTMLLIElement {
   const sync = () => {
     translate(li)
     if (!langPicked) langSel.value = stickerLangFor(s.country, lang())
+    field('country').classList.toggle('non-eu', isNonEu(s.country))
     li.classList.toggle('off', !s.active)
     li.querySelector('.badge')!.textContent = t(s.active ? 'acc.active' : 'acc.inactive')
     li.querySelector('[data-act="toggle"]')!.textContent = t(s.active ? 'acc.turnOff' : 'acc.turnOn')
@@ -221,6 +220,8 @@ onLangChange(() => {
   if (!root.querySelector<HTMLElement>('.acc-out')!.hidden && widget.childElementCount) mountWidget(widget)
 })
 
+const newCountry = root.querySelector<HTMLSelectElement>('.new-sticker [name="country"]')!
+newCountry.addEventListener('change', () => newCountry.classList.toggle('non-eu', isNonEu(newCountry.value)))
 root.querySelector('.new-sticker')!.addEventListener('submit', async (e) => {
   e.preventDefault()
   const form = e.target as HTMLFormElement
@@ -228,6 +229,8 @@ root.querySelector('.new-sticker')!.addEventListener('submit', async (e) => {
   try {
     await api('/api/stickers', 'POST', data)
     form.reset()
+    newCountry.classList.remove('non-eu')
+    newCountry.classList.remove('non-eu')
     showError(null)
     render()
   } catch (err) {

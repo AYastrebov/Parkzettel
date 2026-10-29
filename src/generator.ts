@@ -1,6 +1,6 @@
 import { PHONE_RE, seal, TELEGRAM_RE, type Contact } from './codec'
 import { lang, onLangChange, t, translate, type FullLang, type Key } from './i18n'
-import { COUNTRIES, EU_STARS_SVG } from './plate'
+import { COUNTRY_OPTIONS, EU_STARS_SVG, isNonEu } from './plate'
 import { canShareFiles, printSticker, shareSticker } from './share'
 import { STICKER_LANG_OPTIONS, stickerLangFor, stickerSvg, stickerText, svgToPngBlob, type Channel } from './sticker'
 
@@ -12,10 +12,7 @@ const TEMPLATE = `
   <div class="plate plate-edit">
     <label class="plate-eu">
       ${EU_STARS_SVG}
-      <select name="country" form="gen" data-i18n-label="f.country">
-        <option value="">–</option>
-        ${COUNTRIES.map((c) => `<option>${c}</option>`).join('')}
-      </select>
+      <select name="country" form="gen" data-i18n-label="f.country">${COUNTRY_OPTIONS}</select>
     </label>
     <input name="plate" form="gen" class="plate-num" autocomplete="off" autocapitalize="characters"
       spellcheck="false" maxlength="16" placeholder="M-AB 1234" data-i18n-label="f.plate" />
@@ -175,7 +172,9 @@ export function renderGenerator(root: HTMLElement) {
       if (field('wa').checked) channels.push('whatsapp')
       if (field('telegram').value) channels.push('telegram')
     }
-    if (!langPicked) langSel.value = stickerLangFor(field<HTMLSelectElement>('country').value, lang())
+    const country = field<HTMLSelectElement>('country').value
+    root.querySelector('.plate-edit')!.classList.toggle('non-eu', isNonEu(country))
+    if (!langPicked) langSel.value = stickerLangFor(country, lang())
     const svg = await stickerSvg(url, stickerText(langSel.value as FullLang), channels)
     if (mine !== seq) return // a newer edit superseded this one
     current = res.ok ? { url, svg, plate: res.contact.plate } : null

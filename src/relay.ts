@@ -1,6 +1,6 @@
 import { onLangChange, t, translate, type Key } from './i18n'
 import { icon } from './icons'
-import { EU_STARS_SVG } from './plate'
+import { EU_STARS_SVG, showCountry } from './plate'
 
 // Scanner page for relay stickers (/s/<id>). The owner's contact details never reach this page:
 // messages go through /api/s/<id>/message and the owner answers via Telegram.
@@ -100,7 +100,7 @@ export async function renderRelay(root: HTMLElement, id: string) {
   }
   const info = (await res.json()) as Info
   root.querySelector('.plate-num')!.textContent = info.plate
-  root.querySelector('.plate-country')!.textContent = info.country ?? ''
+  showCountry(root.querySelector('.plate')!, info.country)
   document.title = `${info.plate} · Parkzettel`
   const note = root.querySelector<HTMLElement>('.note')!
   note.hidden = !info.note

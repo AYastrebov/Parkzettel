@@ -1,7 +1,7 @@
 import { open, type Contact } from './codec'
 import { onLangChange, t, translate } from './i18n'
 import { icon } from './icons'
-import { EU_STARS_SVG } from './plate'
+import { EU_STARS_SVG, showCountry } from './plate'
 
 const TEMPLATE = `
 <h1 class="plate">
@@ -29,7 +29,7 @@ const BAD = `
 function fill(root: HTMLElement, c: Contact) {
   translate(root)
   root.querySelector('.plate-num')!.textContent = c.plate
-  root.querySelector('.plate-country')!.textContent = c.country ?? ''
+  showCountry(root.querySelector('.plate')!, c.country)
   document.title = `${c.plate} · Parkzettel`
   const note = root.querySelector<HTMLElement>('.note')!
   note.hidden = !c.note
