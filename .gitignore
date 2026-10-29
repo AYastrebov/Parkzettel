@@ -3,3 +3,7 @@ dist
 
 # Local Netlify folder
 .netlify
+
+# Secrets for netlify dev live in the shell, never in a file that could be committed
+.env
+.env.*
