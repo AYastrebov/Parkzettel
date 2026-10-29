@@ -1,6 +1,5 @@
 import type { Config, Context } from '@netlify/functions'
-import { createSession } from '../lib/session'
-import { store, type Owner } from '../lib/stores'
+import { login } from '../lib/session'
 import { verifyLogin } from '../lib/telegram'
 
 // The Telegram Login Widget redirects here (data-auth-url) with the signed login data as query
@@ -9,11 +8,7 @@ export default async (req: Request, context: Context) => {
   const uid = await verifyLogin(new URL(req.url).searchParams)
   if (!uid) return Response.redirect(new URL('/account?login=failed', req.url), 303)
 
-  const owners = store(context, 'owners')
-  if (!(await owners.get(String(uid)))) {
-    await owners.setJSON(String(uid), { created: Date.now(), stickers: [] } satisfies Owner)
-  }
-  await createSession(context, uid)
+  await login(context, uid)
   return new Response(null, { status: 303, headers: { location: '/account' } })
 }
 

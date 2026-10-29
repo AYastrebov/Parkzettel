@@ -17,6 +17,7 @@ export interface Owner {
   created: number
   stickers: string[]
   lang?: Lang // language for bot messages, taken from the account page
+  session?: string // must match the session cookie; replaced on logout, which revokes older cookies
 }
 
 export interface Sticker {

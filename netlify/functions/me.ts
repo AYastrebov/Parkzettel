@@ -1,28 +1,26 @@
 import type { Config, Context } from '@netlify/functions'
 import { json, sameOrigin } from '../lib/http'
-import { clearSession, readSession } from '../lib/session'
-import { store, type Owner } from '../lib/stores'
+import { logout, readSession } from '../lib/session'
+import { store } from '../lib/stores'
 
 // GET: who is logged in. POST {action: 'logout' | 'delete'}: end the session, or delete the account.
 export default async (req: Request, context: Context) => {
-  const uid = await readSession(context)
-  const owners = store(context, 'owners')
-  const owner = uid ? ((await owners.get(String(uid), { type: 'json' })) as Owner | null) : null
+  const session = await readSession(context)
 
   if (req.method === 'GET') {
-    return json(owner ? { loggedIn: true, stickers: owner.stickers.length } : { loggedIn: false })
+    return json(session ? { loggedIn: true, stickers: session.owner.stickers.length } : { loggedIn: false })
   }
 
   if (!sameOrigin(req)) return json({ error: 'forbidden' }, 403)
   const { action } = (await req.json().catch(() => ({}))) as { action?: string }
-  if (action === 'delete' && uid) {
+  if (action === 'delete' && session) {
     // Deleting the account also deletes its stickers; their QR codes then show "not found".
     const stickers = store(context, 'stickers')
-    await Promise.all((owner?.stickers ?? []).map((id) => stickers.delete(id)))
-    await owners.delete(String(uid))
+    await Promise.all(session.owner.stickers.map((id) => stickers.delete(id)))
+    await store(context, 'owners').delete(String(session.uid))
   }
   if (action === 'logout' || action === 'delete') {
-    clearSession(context)
+    await logout(context, action === 'logout' ? session : null)
     return json({ ok: true })
   }
   return json({ error: 'bad request' }, 400)
