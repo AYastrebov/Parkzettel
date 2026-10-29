@@ -68,9 +68,12 @@ interface StickerView {
 // Telegram Login (https://core.telegram.org/widgets/login): Telegram's script styles the .tg-auth-button
 // element and opens Telegram's login popup when it is clicked. The result is an OpenID id_token, which the
 // page POSTs to /api/auth/telegram. The token carries a nonce our API issued to this browser, so a login
-// result obtained elsewhere cannot be planted here (login CSRF). Only the "write" scope is requested, so
-// the token names the user ID and nothing else. The script's data-onauth attribute is not used: it runs
-// its value through new Function, which the CSP forbids.
+// result obtained elsewhere cannot be planted here (login CSRF). The "profile" scope is needed because
+// only it carries the Telegram user ID (the token's "sub" is a different, OpenID-only identifier); the
+// name, username and photo that come with it are dropped by the API. "write" lets the bot message the
+// owner. The script's data-onauth attribute is not used: it runs its value through new Function, which
+// the CSP forbids.
+const LOGIN_SCOPE = ['profile', 'write']
 interface TelegramLogin {
   init(options: object, callback: (result: { id_token?: string; error?: string }) => void): void
 }
@@ -109,7 +112,7 @@ async function mountLogin(clientId: string | undefined, nonce: string | undefine
   if (!clientId || !nonce) return showError('acc.error')
   loginOptions = { client_id: clientId, nonce }
   try {
-    ;(await loadLogin()).init({ ...loginOptions, scope: ['write'], lang: lang() }, onTelegramAuth)
+    ;(await loadLogin()).init({ ...loginOptions, scope: LOGIN_SCOPE, lang: lang() }, onTelegramAuth)
   } catch {
     showError('acc.error')
   }
@@ -249,7 +252,7 @@ onLangChange(() => {
   translate(root)
   itemSyncs.forEach((sync) => sync())
   showError(errorKey)
-  if (loginOptions && window.Telegram) window.Telegram.Login.init({ ...loginOptions, scope: ['write'], lang: lang() }, onTelegramAuth)
+  if (loginOptions && window.Telegram) window.Telegram.Login.init({ ...loginOptions, scope: LOGIN_SCOPE, lang: lang() }, onTelegramAuth)
 })
 
 const newCountry = root.querySelector<HTMLSelectElement>('.new-sticker [name="country"]')!

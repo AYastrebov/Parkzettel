@@ -4,6 +4,9 @@ import { setting } from './env'
 // OpenID Connect provider: the token is a JWT signed with one of the keys at its JWKS URL, and the claims
 // name the issuer, our bot (aud), the user (sub) and the nonce our API issued for this login attempt.
 // Checked per https://core.telegram.org/widgets/login: signature, iss, aud, exp; plus nonce and iat.
+// The user is the `id` claim (added by the profile scope): that is the Telegram user ID the Bot API needs as
+// chat_id and the key owners and stickers are stored under. `sub` is a separate OpenID subject (Telegram's
+// example shows sub 1234123412341234123 next to id 987654321), so it must not be used as the owner.
 const ISSUER = 'https://oauth.telegram.org'
 const JWKS_URL = `${ISSUER}/.well-known/jwks.json`
 const KEYS_TTL_MS = 60 * 60 * 1000
@@ -69,5 +72,6 @@ export async function verifyIdToken(token: string, expected: { clientId: string;
   if (typeof c.exp !== 'number' || c.exp < now - CLOCK_SKEW_S) return null
   if (typeof c.iat !== 'number' || c.iat > now + CLOCK_SKEW_S) return null
   if (c.nonce !== expected.nonce) return null
-  return typeof c.sub === 'string' && /^\d{1,20}$/.test(c.sub) ? Number(c.sub) : null
+  if (typeof c.id === 'number') return Number.isInteger(c.id) && c.id > 0 ? c.id : null
+  return typeof c.id === 'string' && /^[1-9]\d{0,19}$/.test(c.id) ? Number(c.id) : null
 }
