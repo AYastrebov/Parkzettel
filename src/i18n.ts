@@ -711,8 +711,17 @@ const dict = (l: Lang): Partial<Dict> => (l in LANGS ? LANGS[l as FullLang] : SC
 
 const STORAGE_KEY = 'parkzettel.lang'
 
+// Landing pages have one URL per full language (/de/, /en/, /it/) for search engines; the path wins over
+// any saved choice so the page matches what was indexed.
+export function pathLang(path: string): FullLang | undefined {
+  const l = path.match(/^\/([a-z]{2})\/?$/)?.[1]
+  return l && l in LANGS ? (l as FullLang) : undefined
+}
+
 function detect(): Lang {
   try {
+    const fromPath = pathLang(location.pathname)
+    if (fromPath) return fromPath
     const saved = localStorage.getItem(STORAGE_KEY)
     if (saved && isLang(saved)) return saved
   } catch {}
@@ -728,9 +737,12 @@ const listeners = new Set<() => void>()
 
 export const lang = () => current
 
-export function t(key: Key, vars: Record<string, string> = {}): string {
-  return (dict(current)[key] ?? en[key]).replace(/\{(\w+)\}/g, (_, k) => vars[k] ?? '')
+// Lookup in a given language, without the page state; the build-time prerender uses it.
+export function tIn(l: Lang, key: Key, vars: Record<string, string> = {}): string {
+  return (dict(l)[key] ?? en[key]).replace(/\{(\w+)\}/g, (_, k) => vars[k] ?? '')
 }
+
+export const t = (key: Key, vars: Record<string, string> = {}) => tIn(current, key, vars)
 
 export function setLang(l: Lang) {
   current = l

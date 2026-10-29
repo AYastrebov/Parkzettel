@@ -17,6 +17,17 @@
     X-Content-Type-Options = "nosniff"
     X-Frame-Options = "DENY"
 
+# Pages with personal data or owner tools stay out of search results. The app also sets a robots <meta>.
+[[headers]]
+  for = "/s/*"
+  [headers.values]
+    X-Robots-Tag = "noindex"
+
+[[headers]]
+  for = "/account*"
+  [headers.values]
+    X-Robots-Tag = "noindex"
+
 [[redirects]]
   from = "/account"
   to = "/account.html"

@@ -52,6 +52,7 @@ A **relay sticker** hides your phone number: messages reach you through a Telegr
 - The whole site speaks German, English and Italian. The pages a scanner sees also come in French, Spanish, Dutch, Polish, Turkish, Ukrainian and Russian. The language follows the browser and can be switched at any time.
 - Built for a phone held next to a car: big buttons, dark mode, about 50 kB of gzipped JavaScript with the fonts bundled.
 - The landing page at `/` explains the idea and has a "Share Parkzettel" button; shared links show a preview card (Open Graph, `public/og.png`). The generator lives at `/create`.
+- For search engines the landing page also exists per language at `/de/`, `/en/` and `/it/`, prerendered at build time with `hreflang` links and structured data. The build writes `sitemap.xml` and `robots.txt` too; relay pages and `/account` send `noindex`.
 
 ## How it works
 
@@ -208,8 +209,9 @@ Private stickers work on any static host without steps 2 and 3.
 src/
 ├── chrome.ts      # shared header, language picker, footer
 ├── main.ts        # public app entry, routing: /s/<id> → relay page, /#token → contact page,
-│                  #   /create → generator, / → landing page
+│                  #   /create → generator, / and /de/ /en/ /it/ → landing page
 ├── landing.ts     # marketing page with live sticker and phone mockup, share button
+├── markup.ts      # header/footer and landing markup, shared with the build-time prerender
 ├── generator.ts   # create mode: form, validation, preview, print/share/downloads
 ├── contact.ts     # private sticker scan page: plate + contact buttons
 ├── relay.ts       # relay sticker scan page: send a message, see the reply
