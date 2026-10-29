@@ -1,8 +1,8 @@
 import { PHONE_RE, seal, TELEGRAM_RE, type Contact } from './codec'
-import { lang, onLangChange, t, translate, type Key } from './i18n'
+import { lang, onLangChange, t, translate, type FullLang, type Key } from './i18n'
 import { COUNTRIES, EU_STARS_SVG } from './plate'
 import { canShareFiles, printSticker, shareSticker } from './share'
-import { stickerSvg, svgToPngBlob, type Channel } from './sticker'
+import { STICKER_LANG_OPTIONS, stickerLangFor, stickerSvg, stickerText, svgToPngBlob, type Channel } from './sticker'
 
 // The plate sits outside the <form> in the hero; form="gen" still makes it a form control.
 const TEMPLATE = `
@@ -25,6 +25,7 @@ const TEMPLATE = `
 </section>
 <aside class="preview">
   <div class="sticker draft" aria-live="polite"></div>
+  <label class="sticker-lang"><span data-i18n="p.lang"></span><select name="stickerLang">${STICKER_LANG_OPTIONS}</select></label>
   <div class="actions">
     <button type="button" class="btn primary" data-act="print" disabled data-i18n="p.print"></button>
     <button type="button" class="btn" data-act="share" disabled hidden data-i18n="p.share"></button>
@@ -132,6 +133,10 @@ export function renderGenerator(root: HTMLElement) {
   const btn = (act: string) => root.querySelector<HTMLButtonElement>(`[data-act="${act}"]`)!
   const testLink = root.querySelector<HTMLAnchorElement>('[data-act="test"]')!
   field<HTMLSelectElement>('country').value = DEFAULT_COUNTRY[lang()] ?? ''
+  // Follows the plate country and UI language until the owner picks one.
+  const langSel = root.querySelector<HTMLSelectElement>('[name="stickerLang"]')!
+  let langPicked = false
+  langSel.addEventListener('change', () => (langPicked = true))
 
   let current: { url: string; svg: string; plate: string } | null = null
   let error: Key | null = null
@@ -170,7 +175,8 @@ export function renderGenerator(root: HTMLElement) {
       if (field('wa').checked) channels.push('whatsapp')
       if (field('telegram').value) channels.push('telegram')
     }
-    const svg = await stickerSvg(url, { title: t('s.title'), sub: t('s.sub'), domain: location.host }, channels)
+    if (!langPicked) langSel.value = stickerLangFor(field<HTMLSelectElement>('country').value, lang())
+    const svg = await stickerSvg(url, stickerText(langSel.value as FullLang), channels)
     if (mine !== seq) return // a newer edit superseded this one
     current = res.ok ? { url, svg, plate: res.contact.plate } : null
     stickerEl.innerHTML = svg

@@ -1,8 +1,8 @@
 import { mountChrome } from './chrome'
-import { lang, onLangChange, t, translate, type Key } from './i18n'
+import { lang, onLangChange, t, translate, type FullLang, type Key } from './i18n'
 import { COUNTRIES } from './plate'
 import { canShareFiles, printSticker, shareSticker } from './share'
-import { stickerSvg, svgToPngBlob } from './sticker'
+import { STICKER_LANG_OPTIONS, stickerLangFor, stickerSvg, stickerText, svgToPngBlob } from './sticker'
 
 const BOT_USERNAME = 'ParkzettelBot'
 
@@ -49,6 +49,7 @@ const ITEM = `
     <span class="badge"></span>
   </div>
   <input name="note" maxlength="100" data-i18n-ph="f.notePh" data-i18n-label="f.note" />
+  <label class="sticker-lang"><span data-i18n="p.lang"></span><select name="stickerLang">${STICKER_LANG_OPTIONS}</select></label>
   <div class="item-actions">
     <button type="button" class="btn primary" data-act="print" data-i18n="p.print"></button>
     <button type="button" class="btn" data-act="share" hidden data-i18n="p.share"></button>
@@ -112,12 +113,11 @@ let itemSyncs: (() => void)[] = []
 
 const stickerUrl = (id: string) => new URL(`/s/${id}`, location.origin).href
 
-const buildSvg = (s: StickerView) =>
-  stickerSvg(stickerUrl(s.id), { title: t('s.title'), sub: t('s.sub'), domain: location.host }, ['message'], 'H')
+const buildSvg = (s: StickerView, l: FullLang) => stickerSvg(stickerUrl(s.id), stickerText(l), ['message'], 'H')
 const fileName = (s: StickerView) => `parkzettel-${s.plate.replace(/[^A-Z0-9]+/gi, '-')}`
 
-async function download(s: StickerView, kind: 'png' | 'svg') {
-  const svg = await buildSvg(s)
+async function download(s: StickerView, l: FullLang, kind: 'png' | 'svg') {
+  const svg = await buildSvg(s, l)
   const blob = kind === 'svg' ? new Blob([svg], { type: 'image/svg+xml' }) : await svgToPngBlob(svg)
   const a = document.createElement('a')
   a.href = URL.createObjectURL(blob)
@@ -135,9 +135,14 @@ function renderItem(s: StickerView): HTMLLIElement {
   field('plate').value = s.plate
   field('note').value = s.note ?? ''
   li.querySelector<HTMLAnchorElement>('[data-act="open"]')!.href = stickerUrl(s.id)
+  // Not saved: it only affects the next print or download. Follows the plate country until picked.
+  const langSel = field<HTMLSelectElement>('stickerLang')
+  let langPicked = false
+  const stickerLang = () => langSel.value as FullLang
 
   const sync = () => {
     translate(li)
+    if (!langPicked) langSel.value = stickerLangFor(s.country, lang())
     li.classList.toggle('off', !s.active)
     li.querySelector('.badge')!.textContent = t(s.active ? 'acc.active' : 'acc.inactive')
     li.querySelector('[data-act="toggle"]')!.textContent = t(s.active ? 'acc.turnOff' : 'acc.turnOn')
@@ -157,15 +162,19 @@ function renderItem(s: StickerView): HTMLLIElement {
   }
   li.addEventListener('change', (e) => {
     const el = e.target as HTMLInputElement
+    if (el.name === 'stickerLang') {
+      langPicked = true
+      return
+    }
     if (el.name === 'plate') el.value = el.value.trim().toUpperCase()
     save({ [el.name]: el.value })
   })
-  li.querySelector('[data-act="print"]')!.addEventListener('click', async () => printSticker(await buildSvg(s)))
+  li.querySelector('[data-act="print"]')!.addEventListener('click', async () => printSticker(await buildSvg(s, stickerLang())))
   const share = li.querySelector<HTMLElement>('[data-act="share"]')!
   share.hidden = !canShareFiles()
-  share.addEventListener('click', async () => shareSticker(await buildSvg(s), `${fileName(s)}.png`))
-  li.querySelector('[data-act="png"]')!.addEventListener('click', () => download(s, 'png'))
-  li.querySelector('[data-act="svg"]')!.addEventListener('click', () => download(s, 'svg'))
+  share.addEventListener('click', async () => shareSticker(await buildSvg(s, stickerLang()), `${fileName(s)}.png`))
+  li.querySelector('[data-act="png"]')!.addEventListener('click', () => download(s, stickerLang(), 'png'))
+  li.querySelector('[data-act="svg"]')!.addEventListener('click', () => download(s, stickerLang(), 'svg'))
   li.querySelector('[data-act="toggle"]')!.addEventListener('click', () => save({ active: !s.active }))
   li.querySelector('[data-act="remove"]')!.addEventListener('click', async () => {
     if (!confirm(t('acc.removeConfirm'))) return

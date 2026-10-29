@@ -331,6 +331,28 @@ select option {
   opacity: 0.12;
 }
 
+/* Language of the printed text; sits with the sticker because it changes the print, not the page. */
+.sticker-lang {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 14px;
+  font-weight: 600;
+}
+
+.sticker-lang select {
+  font: inherit;
+  color: var(--ink);
+  background: var(--raised);
+  border: 2px solid var(--line);
+  border-radius: 8px;
+  padding: 8px 10px;
+}
+
+.sticker-item .sticker-lang {
+  margin-bottom: 0;
+}
+
 .actions {
   display: grid;
   grid-template-columns: 1fr 1fr;
