@@ -153,7 +153,9 @@ function renderItem(s: StickerView): HTMLLIElement {
   // Edits apply to the printed sticker right away; that is the point of relay stickers.
   const save = async (patch: Record<string, unknown>) => {
     try {
-      Object.assign(s, (await api<{ sticker: StickerView }>(`/api/stickers/${s.id}`, 'POST', { action: 'update', ...patch })).sticker)
+      const { sticker } = await api<{ sticker: StickerView }>(`/api/stickers/${s.id}`, 'POST', { action: 'update', ...patch })
+      // Cleared optional fields are missing from the JSON, so reset them instead of keeping the old values.
+      Object.assign(s, { country: undefined, note: undefined }, sticker)
       showError(null)
       sync()
     } catch {
