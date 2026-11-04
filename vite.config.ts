@@ -1,12 +1,29 @@
 import { mkdirSync, readFileSync, writeFileSync } from 'node:fs'
 import { resolve } from 'node:path'
+import QRCode from 'qrcode'
 import { defineConfig, type Plugin } from 'vite'
 import { LANGS, tIn, type FullLang, type Key } from './src/i18n'
 import { chromeHtml, escHtml, FAQ, fillText, LANDING } from './src/markup'
+import { BLACK, stickerFrame } from './src/sticker-frame'
 
 // Production origin for canonical URLs, hreflang, the sitemap and robots.txt. Update it, and the Open Graph
 // tags in index.html, if the domain changes.
 const SITE = 'https://parkzettel.fyi'
+
+// The landing hero shows a sticker whose QR leads to the site root. It is the same for every visitor, so it
+// is made here once instead of shipping the QR library to the landing page.
+const heroQr = QRCode.toString(`${SITE}/`, { type: 'svg', errorCorrectionLevel: 'M', margin: 0, color: { dark: BLACK, light: '#ffffff' } })
+const HERO_DOMAIN = new URL(SITE).host
+
+function heroQrModule(): Plugin {
+  const id = 'virtual:hero-qr'
+  return {
+    name: 'parkzettel-hero-qr',
+    resolveId: (source) => (source === id ? '\0' + id : undefined),
+    load: async (resolved) =>
+      resolved === '\0' + id ? `export default ${JSON.stringify(await heroQr)}\nexport const domain = ${JSON.stringify(HERO_DOMAIN)}\n` : undefined,
+  }
+}
 
 const LOCALE: Record<FullLang, string> = { de: 'de_DE', en: 'en_US', it: 'it_IT' }
 const langs = Object.keys(LANGS) as FullLang[]
@@ -46,7 +63,7 @@ const jsonLd = (l: FullLang) =>
 
 // The landing page in one language, as plain HTML: crawlers that don't run JavaScript see the full text,
 // and the app script re-renders the same markup on load.
-function landingPage(shell: string, l: FullLang) {
+function landingPage(shell: string, l: FullLang, qr: string) {
   const text = (k: Key) => escHtml(tIn(l, k))
   const head = [
     `<link rel="canonical" href="${pageUrl(l)}" />`,
@@ -63,7 +80,9 @@ function landingPage(shell: string, l: FullLang) {
   html = swap(html, /<meta property="og:title" content="[^"]*" \/>/, `<meta property="og:title" content="${text('l.title')}" />`)
   html = swap(html, /<meta property="og:description" content="[^"]*" \/>/, `<meta property="og:description" content="${text('l.shareText')}" />`)
   html = swap(html, /<\/head>/, `  ${head.join('\n    ')}\n  </head>`)
-  return swap(html, /<div id="app"><\/div>/, `<div id="app">${fillText(chromeHtml(l, LANDING, 'view-landing'), l)}</div>`)
+  const sticker = stickerFrame(qr, { title: tIn(l, 's.title'), sub: tIn(l, 's.sub'), domain: HERO_DOMAIN }, ['call', 'whatsapp', 'telegram'])
+  const app = swap(fillText(chromeHtml(l, LANDING, 'view-landing'), l), /<div class="l-sticker"><\/div>/, `<div class="l-sticker">${sticker}</div>`)
+  return swap(html, /<div id="app"><\/div>/, `<div id="app">${app}</div>`)
 }
 
 const sitemap = () => `<?xml version="1.0" encoding="UTF-8"?>
@@ -95,11 +114,12 @@ function prerender(): Plugin {
     configResolved(c) {
       out = resolve(c.root, c.build.outDir)
     },
-    closeBundle() {
+    async closeBundle() {
       const shell = readFileSync(resolve(out, 'index.html'), 'utf8')
+      const qr = await heroQr
       for (const l of langs) {
         mkdirSync(resolve(out, l), { recursive: true })
-        writeFileSync(resolve(out, l, 'index.html'), landingPage(shell, l))
+        writeFileSync(resolve(out, l, 'index.html'), landingPage(shell, l, qr))
       }
       writeFileSync(resolve(out, 'sitemap.xml'), sitemap())
       writeFileSync(resolve(out, 'robots.txt'), robots())
@@ -111,7 +131,7 @@ function prerender(): Plugin {
 // one allowed to load Telegram's login widget (see the CSP meta tags in each HTML file). The landing page is
 // also prerendered once per full language (see above).
 export default defineConfig({
-  plugins: [prerender()],
+  plugins: [heroQrModule(), prerender()],
   build: {
     rollupOptions: {
       input: { main: 'index.html', account: 'account.html' },

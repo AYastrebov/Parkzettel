@@ -1,5 +1,7 @@
 import { lang, LANGS, onLangChange, pathLang, t, translate } from './i18n'
+import heroQr, { domain as heroDomain } from 'virtual:hero-qr'
 import { LANDING } from './markup'
+import { stickerFrame } from './sticker-frame'
 
 // Marketing page at "/" and at /de/, /en/, /it/ (prerendered at build time for search engines, see
 // vite.config.ts). The generator lives at /create; printed private stickers (/#token) and relay stickers
@@ -10,15 +12,11 @@ export function renderLanding(root: HTMLElement) {
   root.innerHTML = LANDING
   const home = new URL('/', location.href).href
 
-  // The sticker is drawn by the same code as real stickers. Its QR leads back to this page.
-  // Loaded after first paint, because it pulls in the QR library and the embedded font.
-  const drawSticker = async () => {
-    const { stickerSvg } = await import('./sticker')
-    root.querySelector('.l-sticker')!.innerHTML = await stickerSvg(home, { title: t('s.title'), sub: t('s.sub'), domain: location.host }, [
-      'call',
-      'whatsapp',
-      'telegram',
-    ])
+  // Drawn by the same template as real stickers, with a QR made at build time (it always leads to the site
+  // root), so the landing page needs neither the QR library nor the embedded font.
+  const drawSticker = () => {
+    const text = { title: t('s.title'), sub: t('s.sub'), domain: heroDomain }
+    root.querySelector('.l-sticker')!.innerHTML = stickerFrame(heroQr, text, ['call', 'whatsapp', 'telegram'])
   }
 
   const sync = () => {

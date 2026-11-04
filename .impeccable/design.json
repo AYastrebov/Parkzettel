@@ -1,0 +1,539 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-11-04T22:01:10+00:00",
+  "title": "Design System: Parkzettel",
+  "extensions": {
+    "colorMeta": {
+      "traffic-yellow": {
+        "role": "primary",
+        "displayName": "Traffic Yellow (RAL 1023)",
+        "canonical": "#f7ba0b",
+        "tonalRamp": [
+          "#3b3011",
+          "#6a5416",
+          "#9e7a15",
+          "#d8a40e",
+          "#f1bd27",
+          "#e9ca71",
+          "#ecdeb7",
+          "#f8f5ed"
+        ]
+      },
+      "traffic-black": {
+        "role": "neutral",
+        "displayName": "Traffic Black (RAL 9017)",
+        "canonical": "#1e1e1e",
+        "tonalRamp": [
+          "#262626",
+          "#404040",
+          "#595959",
+          "#737373",
+          "#8c8c8c",
+          "#adadad",
+          "#d1d1d1",
+          "#f2f2f2"
+        ]
+      },
+      "traffic-white": {
+        "role": "neutral",
+        "displayName": "Traffic White",
+        "canonical": "#eef0f0",
+        "tonalRamp": [
+          "#252828",
+          "#3d4343",
+          "#555e5e",
+          "#6c7979",
+          "#869393",
+          "#a9b1b1",
+          "#cfd3d3",
+          "#f2f3f3"
+        ]
+      },
+      "sign-white": {
+        "role": "neutral",
+        "displayName": "Sign White",
+        "canonical": "#ffffff",
+        "tonalRamp": [
+          "#262626",
+          "#404040",
+          "#595959",
+          "#737373",
+          "#8c8c8c",
+          "#adadad",
+          "#d1d1d1",
+          "#f2f2f2"
+        ]
+      },
+      "road-grey": {
+        "role": "neutral",
+        "displayName": "Road Grey",
+        "canonical": "#565b60",
+        "tonalRamp": [
+          "#252627",
+          "#3d4042",
+          "#55595d",
+          "#6d7379",
+          "#868c92",
+          "#aaadb1",
+          "#d0d1d3",
+          "#f2f2f3"
+        ]
+      },
+      "rule-grey": {
+        "role": "neutral",
+        "displayName": "Rule Grey",
+        "canonical": "#cfd3d6",
+        "tonalRamp": [
+          "#252628",
+          "#3c4043",
+          "#535a5f",
+          "#6a747b",
+          "#848d95",
+          "#a8aeb2",
+          "#cfd1d3",
+          "#f2f2f3"
+        ]
+      },
+      "eu-plate-blue": {
+        "role": "secondary",
+        "displayName": "EU Plate Blue",
+        "canonical": "#003399",
+        "tonalRamp": [
+          "#101f3c",
+          "#13316c",
+          "#1041a2",
+          "#074fdf",
+          "#2068f8",
+          "#6d98ed",
+          "#b5c8ed",
+          "#ecf0f8"
+        ]
+      },
+      "eu-star-yellow": {
+        "role": "secondary",
+        "displayName": "EU Star Yellow",
+        "canonical": "#ffdd00",
+        "tonalRamp": [
+          "#3c3710",
+          "#6c6013",
+          "#a28f10",
+          "#dfc207",
+          "#f8db20",
+          "#eddc6d",
+          "#ede6b5",
+          "#f8f7ec"
+        ]
+      },
+      "signal-blue": {
+        "role": "neutral",
+        "displayName": "Signal Blue (focus)",
+        "canonical": "#005387",
+        "tonalRamp": [
+          "#102b3c",
+          "#134a6c",
+          "#106aa2",
+          "#078cdf",
+          "#20a5f8",
+          "#6dbced",
+          "#b5d8ed",
+          "#ecf4f8"
+        ]
+      },
+      "stop-red": {
+        "role": "neutral",
+        "displayName": "Stop Red (errors)",
+        "canonical": "#b3261e",
+        "tonalRamp": [
+          "#361816",
+          "#602320",
+          "#8d2b25",
+          "#c02e26",
+          "#d9483f",
+          "#db8580",
+          "#e5bfbd",
+          "#f6efee"
+        ]
+      },
+      "whatsapp-green": {
+        "role": "tertiary",
+        "displayName": "WhatsApp Green",
+        "canonical": "#1faa53",
+        "tonalRamp": [
+          "#173622",
+          "#215f38",
+          "#278c4d",
+          "#28bd60",
+          "#42d779",
+          "#81daa2",
+          "#bee5cc",
+          "#eef6f1"
+        ]
+      },
+      "telegram-blue": {
+        "role": "tertiary",
+        "displayName": "Telegram Blue",
+        "canonical": "#229ed9",
+        "tonalRamp": [
+          "#162c36",
+          "#1f4b60",
+          "#246c8f",
+          "#248fc1",
+          "#3ea8db",
+          "#7fbedc",
+          "#bcd8e6",
+          "#eef4f7"
+        ]
+      },
+      "asphalt": {
+        "role": "neutral",
+        "displayName": "Asphalt (dark ground)",
+        "canonical": "#23262a",
+        "tonalRamp": [
+          "#242628",
+          "#3c3f44",
+          "#535860",
+          "#69717d",
+          "#828b96",
+          "#a8adb3",
+          "#cfd1d4",
+          "#f2f2f3"
+        ]
+      },
+      "asphalt-raised": {
+        "role": "neutral",
+        "displayName": "Asphalt Raised",
+        "canonical": "#2e3236",
+        "tonalRamp": [
+          "#242628",
+          "#3c4043",
+          "#53595f",
+          "#6a737b",
+          "#848c95",
+          "#a8adb3",
+          "#cfd1d3",
+          "#f2f2f3"
+        ]
+      },
+      "asphalt-grey": {
+        "role": "neutral",
+        "displayName": "Asphalt Grey",
+        "canonical": "#a3a9ae",
+        "tonalRamp": [
+          "#252628",
+          "#3d4043",
+          "#555a5e",
+          "#6c737a",
+          "#858d93",
+          "#a9aeb1",
+          "#cfd1d3",
+          "#f2f2f3"
+        ]
+      },
+      "asphalt-rule": {
+        "role": "neutral",
+        "displayName": "Asphalt Rule",
+        "canonical": "#41474c",
+        "tonalRamp": [
+          "#252628",
+          "#3c4043",
+          "#545a5f",
+          "#6a747b",
+          "#848d95",
+          "#a8aeb2",
+          "#cfd1d3",
+          "#f2f2f3"
+        ]
+      },
+      "signal-blue-night": {
+        "role": "neutral",
+        "displayName": "Signal Blue Night",
+        "canonical": "#6fb3e8",
+        "tonalRamp": [
+          "#162836",
+          "#1f4460",
+          "#24608e",
+          "#257cc1",
+          "#3e96da",
+          "#7fb3dc",
+          "#bdd4e6",
+          "#eef3f6"
+        ]
+      },
+      "stop-red-night": {
+        "role": "neutral",
+        "displayName": "Stop Red Night",
+        "canonical": "#ff8a80",
+        "tonalRamp": [
+          "#3c1410",
+          "#6c1a13",
+          "#a21c10",
+          "#df1807",
+          "#f83120",
+          "#ed786d",
+          "#edb9b5",
+          "#f8edec"
+        ]
+      },
+      "plate-placeholder": {
+        "role": "neutral",
+        "displayName": "Plate Placeholder",
+        "canonical": "#c4c8cb",
+        "tonalRamp": [
+          "#252628",
+          "#3d4043",
+          "#555a5e",
+          "#6c747a",
+          "#858d93",
+          "#a9aeb1",
+          "#cfd1d3",
+          "#f2f2f3"
+        ]
+      },
+      "device-black": {
+        "role": "neutral",
+        "displayName": "Device Black (phone mockup)",
+        "canonical": "#101113",
+        "tonalRamp": [
+          "#242628",
+          "#3c3e44",
+          "#535760",
+          "#6a707c",
+          "#838995",
+          "#a8acb3",
+          "#cfd0d4",
+          "#f2f2f3"
+        ]
+      }
+    },
+    "typographyMeta": {
+      "display": {
+        "displayName": "Display",
+        "purpose": "The landing headline only."
+      },
+      "headline": {
+        "displayName": "Headline",
+        "purpose": "Section headings."
+      },
+      "title": {
+        "displayName": "Title",
+        "purpose": "Step titles, contact-button labels, relay status headlines."
+      },
+      "plate": {
+        "displayName": "Plate",
+        "purpose": "The license plate number, uppercase."
+      },
+      "body": {
+        "displayName": "Body",
+        "purpose": "Explanations and form text."
+      },
+      "body-small": {
+        "displayName": "Body Small",
+        "purpose": "Hints, footers, captions."
+      },
+      "label": {
+        "displayName": "Label",
+        "purpose": "Buttons, language picker, chips."
+      },
+      "page-title": {
+        "displayName": "Page Title",
+        "purpose": "h1 of the generator and the account page."
+      },
+      "plate-hero": {
+        "displayName": "Plate (hero)",
+        "purpose": "The generator's editable hero plate."
+      },
+      "label-large": {
+        "displayName": "Label Large",
+        "purpose": "Hero buttons and FAQ questions."
+      },
+      "lead": {
+        "displayName": "Lead",
+        "purpose": "Pitch under a headline, statement paragraphs, quoted replies; max 34em."
+      },
+      "caption": {
+        "displayName": "Caption",
+        "purpose": "Footers and field help."
+      },
+      "mockup-band": {
+        "displayName": "Mockup Band",
+        "purpose": "Country code inside the phone mockup only."
+      },
+      "mockup-caption": {
+        "displayName": "Mockup Caption",
+        "purpose": "Small text inside the phone mockup only."
+      }
+    },
+    "shadows": [
+      {
+        "name": "plate-ledge",
+        "value": "0 10px 0 -4px var(--line)",
+        "purpose": "Hard offset ledge under the license plate."
+      },
+      {
+        "name": "sticker-drop",
+        "value": "drop-shadow(0 1px 1px rgb(0 0 0 / 0.25)) drop-shadow(0 14px 18px rgb(0 0 0 / 0.16))",
+        "purpose": "Filter on the printed sticker in previews (stronger 0.3/0.22 variant on the landing hero)."
+      },
+      {
+        "name": "device",
+        "value": "0 24px 50px rgb(0 0 0 / 0.25)",
+        "purpose": "Phone mockup on the landing page; dark mode adds 0 0 0 2px #41474c and 0.4 alpha."
+      }
+    ],
+    "motion": [
+      {
+        "name": "press",
+        "value": "transform: scale(0.98) over 0.1s",
+        "purpose": "Press feedback on contact buttons, only under prefers-reduced-motion: no-preference."
+      }
+    ],
+    "breakpoints": [
+      {
+        "name": "single-column",
+        "value": "820px",
+        "purpose": "Below this, generator and landing collapse to one column."
+      },
+      {
+        "name": "scanner-column",
+        "value": "460px",
+        "purpose": "Max width of contact and relay pages; usable from 360px."
+      },
+      {
+        "name": "container",
+        "value": "1080px",
+        "purpose": "Max content width, 16px gutters."
+      },
+      {
+        "name": "reflow-floor",
+        "value": "320px",
+        "purpose": "Every page must fit without horizontal scrolling."
+      }
+    ]
+  },
+  "components": [
+    {
+      "name": "Primary Button",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "The one signal action on a view: create, print, send.",
+      "html": "<button class=\"ds-btn-primary\">Create your sticker</button>",
+      "css": ".ds-btn-primary { display: inline-flex; align-items: center; justify-content: center; min-height: 46px; padding: 6px 12px; border-radius: 8px; border: 2px solid var(--on-yellow, #1e1e1e); background: var(--yellow, #f7ba0b); color: var(--on-yellow, #1e1e1e); font-family: 'Barlow Condensed', 'Roboto Condensed', 'Arial Narrow', sans-serif; font-weight: 700; font-size: 18px; line-height: 1.1; letter-spacing: 0.02em; cursor: pointer; } .ds-btn-primary:focus-visible { outline: 3px solid var(--focus, #005387); outline-offset: 2px; } .ds-btn-primary:active { transform: scale(0.98); }"
+    },
+    {
+      "name": "Secondary Button",
+      "kind": "button",
+      "refersTo": "button-secondary",
+      "description": "Outlined plate for every other action.",
+      "html": "<button class=\"ds-btn-secondary\">Download SVG</button>",
+      "css": ".ds-btn-secondary { display: inline-flex; align-items: center; justify-content: center; min-height: 46px; padding: 6px 12px; border-radius: 8px; border: 2px solid var(--ink, #1e1e1e); background: transparent; color: var(--ink, #1e1e1e); font-family: 'Barlow Condensed', 'Roboto Condensed', 'Arial Narrow', sans-serif; font-weight: 700; font-size: 18px; line-height: 1.1; letter-spacing: 0.02em; cursor: pointer; } .ds-btn-secondary:focus-visible { outline: 3px solid var(--focus, #005387); outline-offset: 2px; }"
+    },
+    {
+      "name": "Contact Buttons",
+      "kind": "custom",
+      "refersTo": "button-contact-call",
+      "description": "The scanner's actions: full width, 66px, true messenger colors.",
+      "html": "<div class=\"ds-contact\"><a class=\"ds-big ds-call\" href=\"#\"><svg width=\"28\" height=\"28\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z\"/></svg>Call</a><a class=\"ds-big ds-wa\" href=\"#\">WhatsApp</a><a class=\"ds-big ds-tg\" href=\"#\">Telegram</a></div>",
+      "css": ".ds-contact { display: flex; flex-direction: column; gap: 12px; max-width: 420px; } .ds-big { display: flex; align-items: center; justify-content: center; gap: 12px; min-height: 66px; border-radius: 10px; font-family: 'Barlow Condensed', 'Roboto Condensed', 'Arial Narrow', sans-serif; font-weight: 700; font-size: 26px; line-height: 1; letter-spacing: 0.02em; text-decoration: none; color: #fff; } .ds-call { background: var(--yellow, #f7ba0b); color: var(--on-yellow, #1e1e1e); border: 2px solid var(--on-yellow, #1e1e1e); } .ds-wa { background: #1faa53; } .ds-tg { background: #229ed9; } .ds-big:focus-visible { outline: 3px solid var(--focus, #005387); outline-offset: 2px; } .ds-big:active { transform: scale(0.98); }"
+    },
+    {
+      "name": "License Plate",
+      "kind": "custom",
+      "refersTo": "license-plate",
+      "description": "EU-style plate: blue band with stars and country code, condensed number.",
+      "html": "<div class=\"ds-plate\"><span class=\"ds-plate-eu\"><svg viewBox=\"0 0 20 20\" width=\"30\" fill=\"#ffdd00\"><circle cx=\"10\" cy=\"3.5\" r=\"1.1\"/><circle cx=\"13.25\" cy=\"4.37\" r=\"1.1\"/><circle cx=\"15.63\" cy=\"6.75\" r=\"1.1\"/><circle cx=\"16.5\" cy=\"10\" r=\"1.1\"/><circle cx=\"15.63\" cy=\"13.25\" r=\"1.1\"/><circle cx=\"13.25\" cy=\"15.63\" r=\"1.1\"/><circle cx=\"10\" cy=\"16.5\" r=\"1.1\"/><circle cx=\"6.75\" cy=\"15.63\" r=\"1.1\"/><circle cx=\"4.37\" cy=\"13.25\" r=\"1.1\"/><circle cx=\"3.5\" cy=\"10\" r=\"1.1\"/><circle cx=\"4.37\" cy=\"6.75\" r=\"1.1\"/><circle cx=\"6.75\" cy=\"4.37\" r=\"1.1\"/></svg>D</span><span class=\"ds-plate-num\">M-PZ 2026</span></div>",
+      "css": ".ds-plate { display: flex; align-items: stretch; max-width: 420px; min-height: 92px; background: #fff; color: #1e1e1e; border: 5px solid #1e1e1e; border-radius: 12px; overflow: hidden; box-shadow: 0 10px 0 -4px var(--line, #cfd3d6); } .ds-plate-eu { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; width: 56px; background: #003399; color: #fff; font-family: 'Barlow Condensed', 'Roboto Condensed', 'Arial Narrow', sans-serif; font-weight: 700; font-size: 20px; } .ds-plate-num { flex: 1; display: flex; align-items: center; justify-content: center; font-family: 'Barlow Condensed', 'Roboto Condensed', 'Arial Narrow', sans-serif; font-weight: 600; font-size: 56px; letter-spacing: 0.06em; }"
+    },
+    {
+      "name": "Text Input",
+      "kind": "input",
+      "refersTo": "input",
+      "description": "Form field: white plate with a grey outline that turns black on focus.",
+      "html": "<label class=\"ds-field\"><span>Phone number</span><input class=\"ds-input\" placeholder=\"+49 170 1234567\"></label>",
+      "css": ".ds-field { display: flex; flex-direction: column; gap: 6px; max-width: 420px; font: 600 17px/1.5 'Barlow', system-ui, sans-serif; color: var(--ink, #1e1e1e); } .ds-input { font: 400 17px/1.5 'Barlow', system-ui, sans-serif; color: var(--ink, #1e1e1e); background: var(--raised, #fff); border: 2px solid var(--line, #cfd3d6); border-radius: 8px; padding: 11px 12px; } .ds-input:focus { outline: none; border-color: var(--ink, #1e1e1e); }"
+    },
+    {
+      "name": "Language Picker",
+      "kind": "nav",
+      "refersTo": "language-chip",
+      "description": "Header select styled as an outlined plate with a drawn chevron.",
+      "html": "<label class=\"ds-langs\"><select><option>Deutsch</option><option>English</option><option>Italiano</option></select></label>",
+      "css": ".ds-langs { position: relative; display: inline-block; } .ds-langs select { appearance: none; border: 2px solid var(--ink, #1e1e1e); border-radius: 8px; background: transparent; color: var(--ink, #1e1e1e); font-family: 'Barlow Condensed', 'Roboto Condensed', 'Arial Narrow', sans-serif; font-weight: 700; font-size: 15px; letter-spacing: 0.02em; padding: 8px 30px 8px 12px; } .ds-langs select option { color: #1e1e1e; background: #fff; } .ds-langs::after { content: ''; position: absolute; right: 12px; top: 50%; width: 7px; height: 7px; border-right: 2px solid var(--ink, #1e1e1e); border-bottom: 2px solid var(--ink, #1e1e1e); transform: translateY(-70%) rotate(45deg); pointer-events: none; } .ds-langs select:focus-visible { outline: 3px solid var(--focus, #005387); outline-offset: 2px; }"
+    },
+    {
+      "name": "Step Marker",
+      "kind": "chip",
+      "refersTo": "step-marker",
+      "description": "Numbered step: yellow square, black outline, condensed numeral.",
+      "html": "<ol class=\"ds-steps\"><li><b>Create</b></li><li><b>Print</b></li></ol>",
+      "css": ".ds-steps { list-style: none; margin: 0; padding: 0; counter-reset: s; display: flex; gap: 24px; } .ds-steps li { counter-increment: s; display: flex; align-items: center; gap: 12px; font-family: 'Barlow Condensed', 'Roboto Condensed', 'Arial Narrow', sans-serif; font-size: 26px; } .ds-steps li::before { content: counter(s); display: grid; place-items: center; width: 44px; height: 44px; border: 2px solid #1e1e1e; border-radius: 6px; background: #f7ba0b; color: #1e1e1e; font-weight: 700; }"
+    }
+  ],
+  "narrative": {
+    "northStar": "The Road Sign",
+    "overview": "Parkzettel looks and behaves like traffic signage. Its job is to be understood at a glance by a stranger standing next to a car, often outdoors, in a hurry, possibly in a language that isn't the owner's. So every element says one thing, in regulated colors, at a size and contrast that survive glare. Nothing is there for decoration that a road sign wouldn't carry.\n\nThe mood is direct, legible, utilitarian and official without being stern: it has the authority of a sign, not the tone of a parking fine. Type is condensed and heavy where it reads as signage (plate, headings, buttons) and calm and open where people read (body text). Controls are flat plates with thick outlines and generous targets. Surfaces are separated by hard rules, not containers. Depth exists only where the screen depicts a real object: the printed sticker, the plate, the phone.\n\nLight mode sits on Traffic White; dark mode on Asphalt. Both keep the same yellow, plate blue and messenger colors, because those are recognized by their color in the real world.",
+    "keyCharacteristics": [
+      "One signal color, Traffic Yellow, marks the thing to do; everything else is black, white and grey.",
+      "Two faces: Barlow Condensed for anything that reads as a sign, Barlow for reading.",
+      "Flat, hard-edged controls with 2px outlines and 8px corners; big tap targets.",
+      "Sections divided by 3px black rules, never by cards or shadows.",
+      "Real objects (sticker, plate, phone) are the only things with shadows.",
+      "Built for a phone held next to a car: 360px and up, dark mode, outdoor contrast."
+    ],
+    "rules": [
+      {
+        "name": "The One Signal Rule",
+        "body": "Traffic Yellow marks the action or the thing to notice. It is never a background wash for whole sections, and a screen never has two competing yellow calls to action of equal weight.",
+        "section": "colors"
+      },
+      {
+        "name": "The Plate Blue Rule",
+        "body": "EU Plate Blue appears only on the license plate. It is not a brand or link color.",
+        "section": "colors"
+      },
+      {
+        "name": "The True Colors Rule",
+        "body": "Messenger and plate colors are not restyled, tinted or used elsewhere; their meaning comes from matching the real world.",
+        "section": "colors"
+      },
+      {
+        "name": "The Sign Voice Rule",
+        "body": "If it should be read from a step away (plate, headings, buttons, sticker text), it is Barlow Condensed. If it should be read up close, it is Barlow. No third family.",
+        "section": "typography"
+      },
+      {
+        "name": "The No Shouting Rule",
+        "body": "Emphasis comes from the condensed face and weight, not from all-caps labels or tracked-out eyebrow text. Only the plate is uppercase.",
+        "section": "typography"
+      },
+      {
+        "name": "The Even Lines Rule",
+        "body": "Headings use `text-wrap: balance`; paragraphs and list items use `text-wrap: pretty`, so no line ends on a single orphaned word.",
+        "section": "typography"
+      },
+      {
+        "name": "The Real Objects Rule",
+        "body": "Only things that exist in the physical world (sticker, plate, phone) cast shadows. Buttons, inputs, notes, menus and sections stay flat.",
+        "section": "elevation"
+      }
+    ],
+    "dos": [
+      "**Do** keep one Traffic Yellow call to action per view and give it black text.",
+      "**Do** separate sections with a 3px Traffic Black rule instead of containers.",
+      "**Do** use Barlow Condensed for plates, headings, buttons and sticker text, Barlow for reading text.",
+      "**Do** keep every tap target at least 44px tall (46px for buttons), and scanner-page actions at 66px.",
+      "**Do** check every page at 320px wide: nothing may scroll sideways.",
+      "**Do** show a 3px Signal Blue focus ring with a 2px offset on every interactive element.",
+      "**Do** keep messenger and EU plate colors true to the real world.",
+      "**Do** respect reduced motion: the only motion is a short press feedback."
+    ],
+    "donts": [
+      "**Don't** wrap content in generic cards with soft shadows; the system is flat.",
+      "**Don't** give interface surfaces shadows; only the sticker, plate and phone cast them.",
+      "**Don't** use all-caps tracked eyebrow labels above headings.",
+      "**Don't** use EU Plate Blue, WhatsApp Green or Telegram Blue as general accents.",
+      "**Don't** add decorative motion, gradients or illustrations; a road sign has none.",
+      "**Don't** load fonts, icons or images from third-party hosts.",
+      "**Don't** mark a statement or callout with a thick colored side border; use the 3px black section rule or type instead."
+    ]
+  }
+}

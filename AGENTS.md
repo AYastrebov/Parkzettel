@@ -91,7 +91,8 @@ netlify/lib/       server helpers: crypto, session cookie, Blobs stores + types,
 src/generator.ts   create mode: form, validation, preview, downloads
 src/contact.ts     scan mode
 src/codec.ts       payload packing + AES-GCM seal/open (token format lives here)
-src/sticker.ts     sticker SVG and PNG export
+src/sticker.ts     real stickers: QR code + embedded font, PNG export, sticker language
+src/sticker-frame.ts the sticker drawing alone (no QR library, no font); used by sticker.ts, the landing hero and the build
 src/i18n.ts        full (DE/EN/IT) and scanner-tier dictionaries, language detection, picker names
 src/icons.ts       Lucide-derived icon paths (ISC)
 src/share.ts       print sheet (two 80 mm copies, print CSS in style.css) and Web Share of the PNG
@@ -132,6 +133,12 @@ netlify.toml       Netlify build + headers (production: parkzettel.fyi)
 - The relay rate limiter (`netlify/lib/ratelimit.ts`) uses conditional Blobs writes (ETags). The local Blobs
   server in `netlify dev` returns no ETag on reads, so writes are unconditional there; only a deploy shows the
   limiter refusing parallel requests.
+- `src/main.ts` loads each route's module with a dynamic `import()`. Keep it that way: the QR library and the
+  embedded sticker font (about 34 KB gzipped) belong only to `/create` and `/account`, never to the pages scanners
+  open. Check the build output's chunk list after adding an import.
+- The landing hero's QR code comes from the `virtual:hero-qr` module that `vite.config.ts` generates at build time
+  (it always encodes the production root `SITE`), and the prerender inlines the finished sticker into
+  `/de/`, `/en/`, `/it/`. In Node, `QRCode.toString()` defaults to plain text; always pass `type: 'svg'`.
 - Token length drives QR density. Don't add payload fields or long defaults without a good reason.
 
 ## Commits and PRs

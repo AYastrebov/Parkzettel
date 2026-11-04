@@ -1,9 +1,6 @@
 import { mountChrome } from './chrome'
 import { lang, LANGS, pathLang } from './i18n'
-import { renderContact } from './contact'
-import { renderGenerator } from './generator'
 import { renderLanding } from './landing'
-import { renderRelay } from './relay'
 
 const view = mountChrome()
 
@@ -19,13 +16,14 @@ const token = location.hash.slice(1)
 const relayId = location.pathname.match(/^\/s\/([A-Za-z0-9]+)\/?$/)?.[1]
 if (relayId) {
   noindex()
-  renderRelay(view, relayId)
+  import('./relay').then((m) => m.renderRelay(view, relayId))
 } else if (token) {
   // Printed private stickers point at "/#<token>", so the root must keep opening the contact page.
   noindex()
-  renderContact(view, token)
+  import('./contact').then((m) => m.renderContact(view, token))
 } else if (/^\/create\/?$/.test(location.pathname)) {
-  renderGenerator(view)
+  // Each route loads its own code: scanner pages never download the generator's QR library.
+  import('./generator').then((m) => m.renderGenerator(view))
 } else {
   // "/" shows the visitor's language; search engines are pointed at the matching prerendered page.
   if (!pathLang(location.pathname)) {
