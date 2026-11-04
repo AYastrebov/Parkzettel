@@ -1,0 +1,21 @@
+{
+  "hook": {
+    "enabled": true,
+    "limits": {
+      "maxFindings": 5,
+      "maxChars": 8000
+    }
+  },
+  "detector": {
+    "ignoreRules": [],
+    "ignoreFiles": [],
+    "ignoreValues": [
+      {
+        "rule": "design-system-color",
+        "value": "rgb(0 0 0 / 0.4)",
+        "createdAt": "2026-11-04T22:01:17.857Z",
+        "reason": "Agent: alpha of the phone mockup's dark-mode device shadow, documented as the 'device' shadow in .impeccable/design.json"
+      }
+    ]
+  }
+}

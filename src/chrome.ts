@@ -3,7 +3,7 @@ import '@fontsource/barlow-condensed/700.css'
 import '@fontsource/barlow/400.css'
 import '@fontsource/barlow/600.css'
 // Barlow has no Cyrillic; Ukrainian and Russian fall back to Roboto Condensed (fetched only when needed).
-import '@fontsource/roboto-condensed/cyrillic-600.css'
+// Bold only: Cyrillic text in the signage face is headings, buttons and picker names, all 700.
 import '@fontsource/roboto-condensed/cyrillic-700.css'
 import './style.css'
 import { lang, onLangChange, setLang, translate, type Lang } from './i18n'
